@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ХРОНОГРАФ КОНФРОНТАЦИИ — спецпроект медиа-приложения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Mono&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script>
+window.onerror=function(m,s,l){
+  var b=document.getElementById('errbar');
+  if(b){b.style.display='block';b.textContent='Script error: '+m+' (line '+l+')';}
+  return false;
+};
+</script>
+<style>
+:root{
+  --paper:#f7f3ea; --paper2:#efe9db; --ink:#161512; --mut:#6f6a5e;
+  --red:#c8102e; --red2:#a30d26; --navy:#0e1a2b; --navy2:#152438;
+  --line:#d9d2c0; --line2:#b9b09a; --blue:#12608f; --teal:#45d6d0;
+  --ok:#2e7d4f; --bad:#b23b30;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'PT Serif',Georgia,serif;line-height:1.55}
+[hidden]{display:none!important}
+#tickData,#caseInfo,#markerData,#caseData,#quizData{display:none}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+h1,h2,h3,h4{font-family:'Oswald','Inter',sans-serif;text-transform:uppercase;letter-spacing:.02em}
+a{color:var(--blue)}
+#errbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:#7a0e1e;color:#fff;
+  font-family:monospace;font-size:12px;padding:8px 14px}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:200}
+.ub{background:var(--navy);color:#cdd8e6;font-family:'PT Mono',monospace;font-size:12px}
+.ub .wrap{display:flex;justify-content:space-between;gap:12px;height:34px;align-items:center;flex-wrap:wrap}
+.ub b{color:#fff}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b30;margin-right:6px;animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.ticker{background:var(--red);color:#fff;overflow:hidden;border-bottom:3px double var(--red2)}
+.tick-track{display:inline-flex;white-space:nowrap;animation:tick 55s linear infinite}
+.ticker:hover .tick-track{animation-play-state:paused}
+.tick{padding:8px 0;font-family:'Oswald';font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.tick span{padding:0 22px;border-right:1px solid rgba(255,255,255,.4)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.masthead{border-bottom:4px double var(--ink)}
+.masthead .over{display:flex;justify-content:space-between;font-family:'PT Mono';font-size:11.5px;color:var(--mut);
+  padding:10px 0 6px;border-bottom:1px solid var(--line);letter-spacing:.06em;text-transform:uppercase}
+.masthead h1{font-size:clamp(34px,6.4vw,74px);text-align:center;padding:18px 0 4px;letter-spacing:.04em;font-weight:700}
+.masthead h1 .r{color:var(--red)}
+.masthead .sub{text-align:center;font-style:italic;color:var(--mut);padding-bottom:12px;font-size:15px}
+.issueline{display:flex;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  font-family:'PT Mono';font-size:11.5px;color:var(--mut);padding:6px 0;text-transform:uppercase;letter-spacing:.05em}
+.rubrics{background:var(--navy);position:sticky;top:0;z-index:150}
+.rubrics .wrap{display:flex;gap:4px;flex-wrap:wrap}
+.rubrics a{color:#dfe7f1;text-decoration:none;font-family:'Oswald';font-size:14px;letter-spacing:.08em;
+  text-transform:uppercase;padding:11px 16px;border-bottom:3px solid transparent}
+.rubrics a:hover{border-color:var(--red);color:#fff}
+#lead{padding:38px 0 30px;border-bottom:1px solid var(--line)}
+.kick{display:inline-flex;align-items:center;gap:10px;font-family:'Oswald';font-size:13px;letter-spacing:.16em;
+  color:var(--red);text-transform:uppercase}
+.kick::before{content:"";width:34px;height:3px;background:var(--red)}
+#lead h2{font-size:clamp(26px,4vw,46px);line-height:1.12;margin:12px 0 10px;max-width:960px}
+.deck{font-size:18px;font-style:italic;color:#3c382f;max-width:820px}
+.byline{margin:16px 0 20px;font-family:'PT Mono';font-size:12.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.byline b{color:var(--ink)}
+.cols{column-count:2;column-gap:34px;column-rule:1px solid var(--line);text-align:justify;font-size:15.5px}
+.cols p{margin-bottom:10px}
+@media(max-width:760px){.cols{column-count:1}}
+.photo{position:relative;height:240px;border:1px solid var(--ink);margin:6px 0 8px;overflow:hidden;
+  background:radial-gradient(circle at 30% 40%, rgba(200,16,46,.25), transparent 55%),
+             radial-gradient(circle at 72% 60%, rgba(69,214,208,.22), transparent 55%), var(--navy)}
+.photo::after{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1px, transparent 1.6px);background-size:7px 7px}
+.photo .ph-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;font-family:'PT Mono';color:#eaf1f8;font-size:clamp(20px,4vw,44px);letter-spacing:.1em}
+.photo .ph-mid{color:var(--red);font-family:'Oswald'}
+.caption{font-family:'PT Mono';font-size:11.5px;color:var(--mut);margin-bottom:22px;text-transform:uppercase;letter-spacing:.04em}
+section.blk{padding:44px 0 50px;border-bottom:1px solid var(--line)}
+.rub{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.rub .r1{background:var(--ink);color:var(--paper);font-family:'Oswald';font-size:12px;letter-spacing:.14em;
+  padding:4px 10px;text-transform:uppercase}
+.rub .r2{font-family:'PT Mono';font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+section.blk>h2{font-size:clamp(24px,3.4vw,40px);margin-bottom:6px}
+section.blk>h2 .r{color:var(--red)}
+.intro{max-width:860px;color:#4a463c;font-size:15.5px;margin-bottom:24px}
+.studio{position:relative;background:var(--navy);border:1px solid var(--ink);border-radius:6px;overflow:hidden;
+  box-shadow:0 14px 34px rgba(14,26,43,.35)}
+.studio .scan{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.028) 0 2px, transparent 2px 5px)}
+.badge-lt{position:absolute;top:12px;left:12px;z-index:5;background:var(--red);color:#fff;font-family:'Oswald';
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:3px}
+.badge-rt{position:absolute;top:12px;right:12px;z-index:5;background:rgba(255,255,255,.12);color:#e8eef7;
+  font-family:'PT Mono';font-size:11px;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.25)}
+#worldmap{display:block;width:100%;height:auto}
+.m-label{font:600 11px 'Inter',sans-serif;fill:#dbe6f3;paint-order:stroke;stroke:rgba(14,26,43,.92);stroke-width:3px;pointer-events:none}
+.m-dot{cursor:pointer}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite;pointer-events:none}
+@keyframes pulse{0%{transform:scale(.5);opacity:.6}100%{transform:scale(1.9);opacity:0}}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 2px 4px;font-family:'Inter';font-size:13px;color:#4a463c}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px}
+.tape{margin-top:18px;border-top:2px solid var(--ink)}
+.tape-h{font-family:'Oswald';font-size:14px;letter-spacing:.14em;text-transform:uppercase;padding:10px 2px;border-bottom:1px solid var(--line)}
+.story{display:flex;align-items:baseline;gap:12px;width:100%;text-align:left;background:none;border:0;
+  border-bottom:1px solid var(--line);padding:11px 4px;cursor:pointer;font-family:'PT Serif',Georgia,serif;font-size:15.5px;color:var(--ink)}
+.story:hover{background:var(--paper2)}
+.story .tm{font-family:'PT Mono';font-size:12px;color:var(--mut);min-width:48px}
+.story .tg{font-family:'Oswald';font-size:11px;padding:3px 8px;border-radius:3px;letter-spacing:.08em;white-space:nowrap}
+.story .hl{flex:1}
+@media(max-width:640px){.story .tm{display:none}}
+.overlay{position:fixed;inset:0;background:rgba(10,12,16,.6);opacity:0;pointer-events:none;transition:.3s;z-index:180}
+.overlay.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(620px,100%);background:#fff;border-left:4px solid var(--red);
+  transform:translateX(103%);transition:transform .32s cubic-bezier(.2,.9,.3,1);z-index:190;display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.25)}
+.drawer.open{transform:translateX(0)}
+.d-head{padding:16px 20px 12px;border-bottom:1px solid var(--line);position:relative;background:var(--paper)}
+.d-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border:1px solid var(--line2);background:#fff;
+  font-size:16px;cursor:pointer;border-radius:4px}
+.d-close:hover{background:var(--ink);color:#fff}
+.d-chip{display:inline-block;background:var(--ink);color:#fff;font-family:'Oswald';font-size:12px;letter-spacing:.12em;padding:4px 10px;text-transform:uppercase}
+.d-head h3{font-size:22px;margin-top:10px;line-height:1.2}
+.d-head .sub{font-family:'PT Mono';font-size:12px;color:var(--mut);margin-top:4px}
+.dtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 20px 0;background:var(--paper)}
+.dtab{border:1px solid var(--line2);background:#fff;padding:10px;font-family:'Oswald';font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;color:var(--mut);border-radius:4px}
+.dtab .yr{display:block;font-family:'PT Mono';font-size:11px;text-transform:none;margin-top:3px;letter-spacing:0}
+.dtab.on-p{background:#2b241b;color:#f0e7d1;border-color:#2b241b}
+.dtab.on-n{background:var(--navy);color:#9fe8e4;border-color:var(--navy)}
+.d-body{overflow-y:auto;padding:16px 20px 26px;flex:1;background:var(--paper)}
+.era{border:1px solid var(--ink);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.era-top{padding:8px 14px;font-family:'PT Mono';font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.era-body{padding:14px 16px 16px}
+.era-past .era-top{background:#2b241b;color:#e7d9b8}
+.era-past .era-body{background:var(--paper2);font-family:'PT Serif',Georgia,serif}
+.era-past h4{font-size:14px;color:#7c2d24;margin:14px 0 6px;letter-spacing:.08em}
+.era-past li{margin:0 0 7px 18px;font-size:15px}
+.era-pres .era-top{background:#0a3b4a;color:#9fe8e4}
+.era-pres .era-body{background:#0e1a2b;color:#dbe6f1;font-family:'Inter',sans-serif;font-size:14px}
+.era-pres h4{font-size:12px;color:var(--teal);margin:14px 0 6px;letter-spacing:.1em}
+.era-pres li{margin:0 0 8px 18px}
+.era .leadline{font-weight:700;font-size:15.5px;margin-bottom:6px}
+.era-pres .leadline{color:#fff}
+.bridge{margin-top:12px;padding:10px 12px;font-style:italic;font-size:13.5px;border-left:3px solid var(--red);background:rgba(200,16,46,.07)}
+.era-pres .bridge{border-left-color:var(--teal);background:rgba(69,214,208,.08);color:#cfe7e5}
+.mirror{border:1px solid var(--ink);border-radius:6px;background:#fff}
+.mirror .mh{background:var(--ink);color:var(--paper);font-family:'Oswald';font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;padding:8px 14px}
+.m-row{display:grid;grid-template-columns:1fr 30px 1fr;align-items:stretch;border-bottom:1px solid var(--line)}
+.m-row:last-child{border-bottom:0}
+.m-cell{padding:9px 12px;font-family:'Inter';font-size:12.5px;color:#4a463c}
+.m-cell.pl{border-right:1px dashed var(--line2);font-weight:600;color:var(--ink)}
+.m-cell.pr{background:var(--navy);color:#dbe6f1}
+.m-arrow{display:flex;align-items:center;justify-content:center;color:var(--red);font-weight:700}
+.m-hd{display:grid;grid-template-columns:1fr 30px 1fr;font-family:'PT Mono';font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;background:var(--paper2);border-bottom:1px solid var(--line)}
+.m-hd div{padding:6px 12px}
+@media(max-width:520px){.m-row,.m-hd{grid-template-columns:1fr}.m-arrow{display:none}.m-cell.pr{border-top:1px dashed #2c3d57}}
+.desk-note{border:1px solid var(--ink);background:#fff;border-radius:6px;padding:14px 16px;margin-bottom:20px;
+  font-size:14.5px;display:flex;gap:14px;align-items:flex-start}
+.desk-note .ic{font-size:22px}
+.q-dots{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.q-dot{width:40px;height:7px;background:#d8d2c4;border-radius:4px}
+.q-dot.done{background:var(--red)} .q-dot.cur{background:var(--ink)}
+.q-note{font-family:'PT Mono';font-size:12px;color:var(--mut);margin-left:auto}
+.q-card{border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;background:#fff;box-shadow:6px 6px 0 rgba(22,21,18,.12)}
+.q-src{display:flex;align-items:center;gap:10px;padding:10px 18px;font-family:'PT Mono';font-size:12px;letter-spacing:.04em;
+  border-bottom:1px dashed var(--line2);text-transform:uppercase}
+.q-head{padding:18px 20px 4px}
+.q-head h3{font-size:clamp(19px,2.6vw,27px);line-height:1.2}
+.q-body{padding:8px 20px 4px;font-size:15.5px}
+.q-body p{margin-bottom:8px}
+.q-qs{padding:14px 20px 20px;display:grid;gap:14px}
+.q-q{border:1px solid var(--line);border-radius:5px;padding:12px}
+.q-q .qq{font-family:'Inter';font-weight:800;font-size:13.5px;margin-bottom:9px}
+.opts{display:grid;gap:7px}
+.opt{text-align:left;border:1px solid var(--line2);background:var(--paper);color:var(--ink);border-radius:4px;
+  padding:9px 12px;font-size:14px;cursor:pointer;font-family:'PT Serif',Georgia,serif;display:flex;gap:10px}
+.opt:hover{border-color:var(--ink)}
+.opt .k{font-family:'PT Mono';color:var(--mut);font-size:12px;margin-top:1px}
+.opt.sel{border-color:var(--ink);background:#fff;box-shadow:3px 3px 0 rgba(22,21,18,.14)}
+.opt.right{border-color:var(--ok);background:#eaf4ec}
+.opt.wrong{border-color:var(--bad);background:#f7e9e6}
+.opt.dis{cursor:default}
+.why{margin-top:9px;border:1px dashed var(--line2);background:var(--paper);padding:11px 13px;font-size:13.5px;display:none}
+.why.show{display:block}
+.why .wh{font-family:'Oswald';font-size:11.5px;letter-spacing:.12em;color:var(--red);text-transform:uppercase;margin-bottom:5px}
+.verdict{display:none;margin:0 20px 16px;border:2px solid var(--ink);border-radius:5px;padding:10px 14px;
+  font-family:'Oswald';letter-spacing:.06em;font-size:14px;text-transform:uppercase;background:var(--paper2)}
+.verdict.show{display:block}
+.q-foot{display:flex;align-items:center;gap:14px;padding:0 20px 20px;flex-wrap:wrap}
+.btn{border:0;border-radius:4px;padding:12px 22px;font-family:'Oswald';font-size:15px;letter-spacing:.06em;cursor:pointer;
+  background:var(--red);color:#fff;text-transform:uppercase}
+.btn:hover{background:var(--red2)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink);text-decoration:none;display:inline-block}
+.btn.ghost:hover{background:var(--ink);color:#fff}
+.q-score{font-family:'PT Mono';font-size:12.5px;color:var(--mut)}
+.sk-paper{background:var(--paper2)}
+.sk-paper .q-src{color:#7c2d24;background:rgba(163,59,48,.08)}
+.sk-paper .q-head h3{font-family:'Oswald';color:#7c2d24}
+.sk-paper .q-body{font-family:'PT Serif',Georgia,serif}
+.sk-tg{background:#17212b;color:#eef4fa}
+.sk-tg .q-src{background:#0e1620;color:#6ab3f3;border-bottom-color:#233243}
+.sk-tg .q-q{background:#1e2a37;border-color:#2b3b4d}
+.sk-tg .opt{background:#243242;color:#eef4fa;border-color:#2b3b4d}
+.sk-tg .opt:hover{border-color:#6ab3f3}
+.sk-tg .opt.sel{border-color:#6ab3f3;background:#1c3448}
+.sk-tg .why{background:#121c26;border-color:#2b3b4d;color:#c9d6e2}
+.sk-tg .why .wh{color:#6ab3f3}
+.sk-news{background:#fff}
+.sk-news .q-src{background:#fdecec;color:var(--red);border-bottom-color:#e8c9c9}
+.sk-news .q-head h3{font-family:'PT Serif',Georgia,serif;font-style:italic;text-transform:none;color:var(--ink)}
+.sk-news .q-q{background:#faf8f3}
+.cert{border:2px solid var(--ink);border-radius:6px;background:#fff;padding:34px 24px;text-align:center;position:relative;overflow:hidden}
+.cert::before{content:"";position:absolute;inset:8px;border:1px dashed var(--line2);pointer-events:none}
+.cert .big{font-family:'Oswald';font-size:60px;color:var(--red);line-height:1}
+.cert-top{font-family:'PT Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--mut)}
+.band{display:inline-block;margin:12px 0 16px;padding:8px 18px;border:2px solid var(--ink);
+  font-family:'Oswald';letter-spacing:.08em;text-transform:uppercase;background:var(--paper2)}
+.stamp{display:inline-block;margin:6px 0 14px;padding:9px 20px;border:3px double var(--red);color:var(--red);
+  font-family:'Oswald';letter-spacing:.16em;font-size:14px;text-transform:uppercase;transform:rotate(-5deg)}
+.cert p{max-width:560px;margin:0 auto 18px;color:#4a463c;font-size:14.5px}
+.folder{border:1.5px solid var(--ink);border-radius:6px;background:#fff;margin-bottom:14px;overflow:hidden}
+.fhead{width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--paper2);
+  border:0;cursor:pointer;font-family:'Oswald';font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.fhead:hover{background:#e6dfcd}
+.fhead .tag{font-family:'PT Mono';font-size:10.5px;color:#fff;background:var(--blue);padding:3px 8px;border-radius:3px;letter-spacing:.04em;text-transform:none}
+.fhead .plus{margin-left:auto;font-family:'Oswald';font-size:20px;color:var(--red);transition:.2s}
+.folder.open .fhead{background:var(--ink);color:var(--paper)}
+.folder.open .plus{transform:rotate(45deg)}
+.fbody{display:none;padding:16px 20px 20px;border-top:1px solid var(--line);font-size:14.5px;color:#3c382f}
+.folder.open .fbody{display:block}
+.fbody h4{font-size:14px;margin:12px 0 6px;letter-spacing:.06em}
+.fbody b{color:var(--ink)}
+.fbody li{margin:0 0 6px 18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
+.stat{border:1px solid var(--line2);border-radius:5px;padding:12px;background:var(--paper)}
+.stat .v{font-family:'Oswald';font-size:28px;color:var(--red)}
+.stat .k{font-family:'Inter';font-size:12px;color:var(--mut);margin-top:3px}
+table.cmp{width:100%;border-collapse:collapse;font-size:13px;font-family:'Inter'}
+.cmp th,.cmp td{border:1px solid var(--line2);padding:9px 11px;text-align:left;vertical-align:top}
+.cmp th{background:var(--ink);color:var(--paper);font-family:'Oswald';font-weight:500;letter-spacing:.05em}
+.cmp td:first-child{font-weight:700;width:180px;background:var(--paper2)}
+.cmp .cp{background:#faf0e6}.cmp .cn{background:#eef4f6}
+.sift{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.sift div{border:1px solid var(--line2);border-radius:5px;padding:11px;background:var(--paper);font-size:13px;font-family:'Inter'}
+.sift b{display:block;font-family:'PT Mono';color:var(--red);margin-bottom:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.card{border:1px solid var(--line2);border-radius:4px;padding:11px 12px;background:#fff;font-size:12.5px;font-family:'Inter'}
+.card .num{font-family:'PT Mono';font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px}
+.card a{word-break:break-all}
+footer{background:var(--navy);color:#c3cfdd;padding:34px 0 54px;font-family:'Inter';font-size:13px}
+footer .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+footer h4{color:#fff;font-size:13px;letter-spacing:.14em;margin-bottom:8px}
+footer .rule{border-top:1px solid rgba(255,255,255,.18);margin-top:22px;padding-top:14px;
+  font-family:'PT Mono';font-size:11px;color:#8fa0b4;letter-spacing:.05em}
+.reveal{opacity:0;transform:translateY(16px);transition:.55s}
+.reveal.vis{opacity:1;transform:none}
+@media(max-width:640px){.m-label{display:none}}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="errbar"></div>
+
+<div class="ub">
+  <div class="wrap">
+    <span><span class="live-dot"></span>СПЕЦВЫПУСК · Научно-социальная программа «ШАГ В БУДУЩЕЕ»</span>
+    <span>МУРМАНСК · <b id="clock">--:--:--</b></span>
+  </div>
+</div>
+
+<div class="ticker"><div class="tick-track" id="tickTrack"></div></div>
+
+<div class="masthead">
+  <div class="wrap">
+    <div class="over"><span>Цифровое медиа-приложение к исследовательской работе</span><span>Издание не имеет аналогов в двух эпохах</span></div>
+    <h1>ХРОНОГРАФ <span class="r">КОНФРОНТАЦИИ</span></h1>
+    <div class="sub">От «железного занавеса» к войне нарративов: три кейса, две эпохи, один метод — сравнение</div>
+    <div class="issueline">
+      <span>Выпуск № 1 · Спецпроект</span>
+      <span>Автор: А. Мясаедов · филиал НВМУ, г. Мурманск</span>
+      <span>Цена подписки: критическое мышление</span>
+    </div>
+  </div>
+</div>
+
+<nav class="rubrics">
+  <div class="wrap">
+    <a href="#lead">Главное</a>
+    <a href="#map-section">Карта сюжетов</a>
+    <a href="#quiz-section">Фактчек-деск</a>
+    <a href="#kb-section">Архив редакции</a>
+  </div>
+</nav>
+
+<main>
+<article id="lead">
+  <div class="wrap">
+    <span class="kick">Спецпроект · Медиаграмотность</span>
+    <h2>Как «поле боя» переехало: от радиоволн и берлинских стен — к лентам, ботам и санкционным реестрам</h2>
+    <p class="deck">В XX веке государство монопольно владело информацией и воевало «чужими руками». Сегодня информация избыточна, войны ведут ЧВК и боты, а экономика стала фронтом. Сравнительное расследование — в трёх сюжетах ниже.</p>
+    <div class="byline">Текст: <b>Алексей Мясаедов</b>, 10 класс · При участии: <b>Ю.В. Самойлова, И.Н. Рыбакова</b> · Дата выхода: 2026</div>
+    <div class="photo"><div class="ph-txt"><span>1945 · ЗАНАВЕС</span><span class="ph-mid">⟶</span><span>2026 · НАРРАТИВЫ</span></div></div>
+    <div class="caption">Иллюстрация: эволюция медиапространства от монополии к фрагментации. Графика редакции</div>
+    <div class="cols">
+      <p><b>МУРМАНСК.</b> Если в XX веке символом противостояния стал «железный занавес» — физический и цензурный барьер, ограничивающий потоки информации, — то в XXI веке конфликт переместился в цифровую среду и трансформировался в «войну нарративов». Масс-медиа больше не просто освещают геополитику: они конструируют реальность, предлагая аудитории конкурирующие смысловые рамки.</p>
+      <p>Эмпирическое исследование среди воспитанников Нахимовского училища (N&nbsp;=&nbsp;50) показало: подростки критически воспринимают упрощённые медийные аналогии, а главными «полями боя» называют информационно-идеологическую (38%) и экономическую (30%) сферы. При этом официальные СМИ (30,6%) и социальные сети (25,5%) конкурируют за внимание аудитории практически на равных.</p>
+      <p>Этот спецпроект — интерактивное приложение к работе. Прокрутите страницу: кликните по маркерам студийной карты, чтобы сравнить эпохи; проверьте себя на «фактчек-деске»; для жюри открыт «архив редакции» с методологией и полным списком источников.</p>
+    </div>
+  </div>
+</article>
+
+<section class="blk" id="map-section">
+  <div class="wrap">
+    <div class="rub reveal"><span class="r1">Модуль № 1</span><span class="r2">Международная панорама · прямая трансляция сюжета</span></div>
+    <h2 class="reveal">Карта <span class="r">сюжетов</span></h2>
+    <p class="intro reveal">Перед вами — «студийная карта» редакции. Клик по маркеру открывает сводку сюжета с двумя зеркальными вкладками: архивная сводка эпохи Занавеса и «прямой эфир» эпохи нарративов. Внизу каждой сводки — сравнительная строка «что изменилось».</p>
+    <div class="studio reveal">
+      <span class="badge-lt"><span class="live-dot"></span>Эфир</span>
+      <span class="badge-rt">СЮЖЕТОВ В ЭФИРЕ: 9</span>
+      <svg id="worldmap" viewBox="0 0 1000 500" role="img" aria-label="Карта сюжетов"></svg>
+      <div class="scan"></div>
+    </div>
+    <div class="legend reveal">
+      <span><i style="background:#f2b04b"></i>Кейс А — прокси-войны</span>
+      <span><i style="background:#ff7b8a"></i>Кейс Б — информационные операции</span>
+      <span><i style="background:#3fd68f"></i>Кейс В — экономическое давление</span>
+    </div>
+    <div class="tape reveal">
+      <div class="tape-h">Лента сюжетов · нажмите, чтобы открыть сводку</div>
+      <div id="tapeList"></div>
+    </div>
+  </div>
+</section>
+
+<section class="blk" id="quiz-section">
+  <div class="wrap">
+    <div class="rub reveal"><span class="r1">Модуль № 2</span><span class="r2">Редакционное задание · медиаграмотность</span></div>
+    <h2 class="reveal">Фактчек-<span class="r">деск</span></h2>
+    <p class="intro reveal">В редакцию поступили три материала. Ваша задача — как у фактчекера: определить цель сообщения, распознать пропагандистский приём и указать, где искать первоисточник. После проверки — вердикт редакции и экспертный разбор.</p>
+    <div class="desk-note reveal"><span class="ic">🗂️</span><div><b>Памятка дежурного фактчекера.</b> Метод SIFT: <b>S</b>top — остановитесь, эмоция — сигнал проверить; <b>I</b>nvestigate — изучите источник; <b>F</b>ind — найдите лучшее освещение; <b>T</b>race — вернитесь к первоисточнику. Слепая вера анонимным «источникам» в цифровую эпоху опасна: атрибуция без проверки — не верификация.</div></div>
+    <div id="quizShell" class="reveal"></div>
+    <p class="intro reveal" style="font-size:12.5px;color:var(--mut)">Все тексты карточек — учебные стилизации, созданные для тренировки медиаграмотности; они не являются реальными публикациями и не приписываются реальным изданиям.</p>
+  </div>
+</section>
+
+<section class="blk" id="kb-section" style="border-bottom:0">
+  <div class="wrap">
+    <div class="rub reveal"><span class="r1">Модуль № 3</span><span class="r2">Только для жюри и экспертов · методология</span></div>
+    <h2 class="reveal">Архив <span class="r">редакции</span></h2>
+    <p class="intro reveal">Папки архива: теоретическая выжимка, данные эмпирического исследования, сравнительные таблицы эпох, чеклист фактчекинга и полный каталог источников.</p>
+
+    <div class="folder reveal" id="f1">
+      <button class="fhead" data-f="f1"><span class="tag">Папка 01 · Теория</span> Ключевые положения исследования <span class="plus">+</span></button>
+      <div class="fbody">
+        <p><b>Гипотеза.</b> Современная фаза противостояния, условно именуемая «новой холодной войной», не является прямой репликой конфликта XX века — это качественно новый, многополярный и гибридный тип системной конфронтации, сохраняющий отдельные черты классической Холодной войны, но отличающийся архитектурой, методами и центральной осью противоречий.</p>
+        <h4>Четыре установленных различия</h4>
+        <ul>
+          <li><b>Архитектура:</b> жёсткая биполярность уступила диффузной многополярности с возвышением Китая и региональных держав.</li>
+          <li><b>Методы:</b> на смену гонке вооружений пришли гибридные технологии — кибервойна, точечные санкции, информационно-психологические операции.</li>
+          <li><b>Ось противоречий:</b> от идеологического спора «капитализм vs коммунизм» — к конфликту принципов мироустройства («либеральный порядок» vs «многополярный мир», суверенитет).</li>
+          <li><b>Роль дискурса:</b> медиапространство само стало полем боя; историческая память — инструмент легитимации политики.</li>
+        </ul>
+        <h4>Линии преемственности</h4>
+        <ul><li>логика стратегического сдерживания;</li><li>конструирование образа внешней угрозы для внутренней мобилизации;</li><li>инструментальное использование истории в медийном дискурсе.</li></ul>
+        <h4>Методы</h4>
+        <p>Сравнительно-исторический анализ; историко-генетический метод; дискурс-анализ публикаций и заявлений; анализ научной литературы; анонимное анкетирование (N = 50, воспитанники 10 классов НВМУ) со статистической и качественной обработкой. По А.В. Куприянову, холодная война — «стратегия измора»: постепенность начала, длительность, многомерность, большой расход ресурсов.</p>
+      </div>
+    </div>
+
+    <div class="folder reveal" id="f2">
+      <button class="fhead" data-f="f2"><span class="tag">Папка 02 · Эмпирика</span> Данные анкетирования (N = 50) <span class="plus">+</span></button>
+      <div class="fbody">
+        <div class="stats">
+          <div class="stat"><div class="v">50</div><div class="k">респондентов — воспитанники 10 классов НВМУ</div></div>
+          <div class="stat"><div class="v">64%</div><div class="k">верно определили хронологию (1945–1991)</div></div>
+          <div class="stat"><div class="v">52%</div><div class="k">видят причину в борьбе за геополитическое господство</div></div>
+          <div class="stat"><div class="v">60%</div><div class="k">считают инициаторами обе стороны в равной степени</div></div>
+          <div class="stat"><div class="v">74%</div><div class="k">из согласных с термином уточняют: «конфликт нового типа»</div></div>
+          <div class="stat"><div class="v">38/30%</div><div class="k">главные поля боя: информационная и экономическая сферы</div></div>
+          <div class="stat"><div class="v">58%</div><div class="k">считают современную фазу значительно опаснее</div></div>
+          <div class="stat"><div class="v">30,6↔25,5%</div><div class="k">официальные СМИ против соцсетей: паритет</div></div>
+        </div>
+        <p><b>Вывод:</b> подростки демонстрируют критическое восприятие упрощённых медийных аналогий, осознают гибридный характер угроз и идентифицируют информационную сферу как главное «поле боя». Паритет «официальные СМИ vs соцсети» актуализирует целенаправленное развитие медиаграмотности и навыков фактчекинга.</p>
+      </div>
+    </div>
+
+    <div class="folder reveal" id="f3">
+      <button class="fhead" data-f="f3"><span class="tag">Папка 03 · Сравнение</span> Классическая и «новая» Холодная война <span class="plus">+</span></button>
+      <div class="fbody" style="overflow-x:auto">
+        <table class="cmp">
+          <tr><th>Критерий</th><th>Классическая (1946–1991)</th><th>«Новая» (с 2000-х)</th></tr>
+          <tr><td>Хронология</td><td class="cp">1946 — Фултонская речь; 1947 — доктрина Трумэна; 1949–1991 — НАТО/ОВД, гонка вооружений, кризисы; 1991 — распад СССР</td><td class="cn">2000-е — рост напряжения, расширение НАТО; 2014 — Крым, первые санкции; 2022 — открытая фаза конфронтации</td></tr>
+          <tr><td>Архитектура</td><td class="cp">Жёсткая биполярность: два центра силы, выбор стороны обязателен</td><td class="cn">Диффузная многополярность: Китай, Турция, ОАЭ, Индия; «стратегический треугольник»</td></tr>
+          <tr><td>Методы</td><td class="cp">Гонка вооружений; прокси-войны (Корея, Вьетнам, Афганистан); идеологическая пропаганда</td><td class="cn">Гибридные методы (кибер, инфовойна); точечные санкции против секторов и элит; информация — главное «поле боя»</td></tr>
+          <tr><td>Архивные документы</td><td class="cp">План «Немыслимое» (1945); СНБ-68 (1950); операция «Анадырь» (1962); план SAC (1959)</td><td class="cn">Доктринальные документы НАТО; расследования кибератак с привязкой к государственным структурам</td></tr>
+          <tr><td>Ось противоречий</td><td class="cp">Идеологическая: два универсальных проекта переустройства мира</td><td class="cn">Геополитическая и ценностная: принципы мироустройства, суверенитет, сферы влияния</td></tr>
+          <tr><td>Главный вывод</td><td class="cp">Победа через истощение; физические границы и военные блоки</td><td class="cn">Победа через дестабилизацию извне; границы размыты, война на всех фронтах</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="folder reveal" id="f4">
+      <button class="fhead" data-f="f4"><span class="tag">Папка 04 · Кейсы</span> Позиции сторон по шести эпизодам <span class="plus">+</span></button>
+      <div class="fbody" style="overflow-x:auto">
+        <table class="cmp">
+          <tr><th>Эпизод</th><th>Позиция Запада</th><th>Позиция РФ</th></tr>
+          <tr><td>Кибератаки (Саудовская Арабия, 2019)</td><td class="cp">Доклад СБ ООН S/2021/229: атака «скорее всего» с территории Ирана</td><td class="cn">МИД РФ (17.06.2020): выводы «беспочвенны», указание на ангажированность</td></tr>
+          <tr><td>Вмешательство в выборы США (2016)</td><td class="cp">Заключение Р. Мюллера (2018); доклад Сената (2020)</td><td class="cn">Путин (16.12.2016): «важно, кто это сделал»; МИД (16.02.2018): обвинения «необоснованные»</td></tr>
+          <tr><td>ЧВК в Африке</td><td class="cp">OFAC (2024): «экспортёр нестабильности»; санкции ЕС (2022)</td><td class="cn">МИД (29.07.2022): «коммерческая инициатива»; Путин (FT, 20.06.2019): коммерческая основа</td></tr>
+          <tr><td>«Умные» санкции</td><td class="cp">Директива 2 OFAC (SSI); Регламент ЕС № 833/2014; Decision (CFSP) 2022/336</td><td class="cn">Указ № 560 от 06.08.2014 (ответное эмбарго); МИД (28.02.2022): санкции «незаконные, политически мотивированные»</td></tr>
+          <tr><td>Информационная война (Крым/Донбасс)</td><td class="cp">RAND «Firehose of Falsehood» (2016); оценка аннексии как нарушения МП</td><td class="cn">«Исправление исторической несправедливости»; законы № 121-ФЗ и № 31-ФЗ как защита инфопространства</td></tr>
+          <tr><td>Судебный процесс по MH17</td><td class="cp">JIT (2018): ЗРК «Бук» из РФ; приговор Гааги (2022): пожизненные сроки</td><td class="cn">МИД (17.11.2022): приговор «политически мотивированный»; (27.11.2025): нелегитимность решения Совета ИКАО</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="folder reveal" id="f5">
+      <button class="fhead" data-f="f5"><span class="tag">Папка 05 · Практика</span> Экспресс-чеклист фактчекинга <span class="plus">+</span></button>
+      <div class="fbody">
+        <div class="sift">
+          <div><b>S · Stop</b>Остановитесь: эмоция — сигнал проверить, а не переслать.</div>
+          <div><b>I · Investigate</b>Изучите источник: кто автор, какие интересы, есть ли редакция.</div>
+          <div><b>F · Find</b>Найдите лучшее освещение: сверка нескольких независимых публикаций.</div>
+          <div><b>T · Trace</b>Вернитесь к первоисточнику: документ, реестр, стенограмма.</div>
+        </div>
+        <h4>Где искать первоисточники</h4>
+        <ul>
+          <li><b>Правовые акты и санкции:</b> EUR-Lex, OFAC (Минфин США), publication.pravo.gov.ru.</li>
+          <li><b>Архивы:</b> Национальный архив США и Archive.org («пентагоновские бумаги»), nsarchive.gwu.edu, Wilson Center.</li>
+          <li><b>Позиции государств:</b> kremlin.ru, mid.ru, ведомства США и органы ЕС.</li>
+          <li><b>Международные расследования:</b> undocs.org (СБ ООН), JIT и суды Нидерландов, доклады Сената США.</li>
+        </ul>
+        <p>Атрибуция без возможности проверить — не верификация. Латеральное чтение (несколько независимых источников параллельно) — базовый навык медиаграмотности.</p>
+      </div>
+    </div>
+
+    <div class="folder reveal" id="f6">
+      <button class="fhead" data-f="f6"><span class="tag">Папка 06 · Каталог</span> Полный список источников (33) <span class="plus">+</span></button>
+      <div class="fbody">
+        <h4>I. Официальные документы и правовые акты</h4>
+        <div class="cards">
+          <div class="card"><span class="num">ДОК-001</span>Выступление Президента РФ В.В. Путина по Крыму и Севастополю (18.03.2014). <a href="http://kremlin.ru/events/president/news/20603" target="_blank" rel="noopener">kremlin.ru</a></div>
+          <div class="card"><span class="num">ДОК-002</span>Council Regulation (EU) No 833/2014, консолидированная версия. <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0833-20220603" target="_blank" rel="noopener">eur-lex.europa.eu</a></div>
+          <div class="card"><span class="num">ДОК-003</span>Council Decision (CFSP) 2022/336 от 28.02.2022. <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02022D0336-20240318" target="_blank" rel="noopener">eur-lex.europa.eu</a></div>
+          <div class="card"><span class="num">ДОК-004</span>Directive 2 under EO 13662 (SSI List), U.S. Treasury. <a href="https://home.treasury.gov/system/files/126/ukraine_directive_2.pdf" target="_blank" rel="noopener">home.treasury.gov</a></div>
+          <div class="card"><span class="num">ДОК-005</span>U.S. Treasury Press Release (April 2024): sanctions evasion networks. <a href="https://home.treasury.gov/news/press-releases/jy2080" target="_blank" rel="noopener">home.treasury.gov</a></div>
+          <div class="card"><span class="num">ДОК-006</span>U.S. v. Netyksho et al., Indictment (13.07.2018), DOJ. <a href="https://www.justice.gov/file/1080281/download" target="_blank" rel="noopener">justice.gov</a></div>
+          <div class="card"><span class="num">ДОК-007</span>SSCI Report Vol. 5: Russian Active Measures (2020). <a href="https://www.intelligence.senate.gov/publications/report-select-committee-intelligence-united-states-senate-russian-active-measures" target="_blank" rel="noopener">intelligence.senate.gov</a></div>
+          <div class="card"><span class="num">ДОК-008</span>Указ Президента РФ № 560 от 06.08.2014. <a href="http://publication.pravo.gov.ru/Document/View/0001201408060001" target="_blank" rel="noopener">pravo.gov.ru</a></div>
+          <div class="card"><span class="num">ДОК-009</span>ФЗ № 121-ФЗ от 20.07.2012 («иностранные агенты»). <a href="http://publication.pravo.gov.ru/Document/View/0001201207200016" target="_blank" rel="noopener">pravo.gov.ru</a></div>
+          <div class="card"><span class="num">ДОК-010</span>ФЗ № 31-ФЗ от 18.03.2019 (изменения в КоАП РФ). <a href="http://publication.pravo.gov.ru/Document/View/0001201903180036" target="_blank" rel="noopener">pravo.gov.ru</a></div>
+        </div>
+        <h4>II. Архивные коллекции и рассекреченные документы</h4>
+        <div class="cards">
+          <div class="card"><span class="num">АРХ-011</span>«Список целей для стратегического уничтожения» (SAC, 1959), NSArchive. <a href="https://nsarchive.gwu.edu/" target="_blank" rel="noopener">nsarchive.gwu.edu</a></div>
+          <div class="card"><span class="num">АРХ-012</span>Коллекции NSArchive по холодной войне (рус. страницы). <a href="https://nsarchive.gwu.edu/russian-pages/collections" target="_blank" rel="noopener">nsarchive.gwu.edu</a></div>
+          <div class="card"><span class="num">АРХ-013</span>Холодная война: материалы и хронология. <a href="http://historyteacher.ru" target="_blank" rel="noopener">historyteacher.ru</a></div>
+          <div class="card"><span class="num">АРХ-014</span>State Dept. Statement on Attack Against Saudi Arabia (14.09.2019). <a href="https://ru.usembassy.gov/ru/statement-on-the-attack-against-saudi-arabia/" target="_blank" rel="noopener">ru.usembassy.gov</a></div>
+        </div>
+        <h4>III. Международные органы и расследования</h4>
+        <div class="cards">
+          <div class="card"><span class="num">ООН-015</span>Panel of Experts on Yemen, S/2021/229 (08.03.2021). <a href="https://undocs.org/S/2021/229" target="_blank" rel="noopener">undocs.org</a></div>
+          <div class="card"><span class="num">JIT-016</span>JIT Press Release: MH17 breakthrough (24.05.2018). <a href="https://www.prosecutionservice.nl/topics/mh17-crash/press-releases/2018/05/24/joint-investigation-team-more-suspects-and-considerable-breakthrough-mh17-investigation" target="_blank" rel="noopener">prosecutionservice.nl</a></div>
+          <div class="card"><span class="num">СУД-017</span>Life sentences for downing MH17, вердикт (17.11.2022). <a href="https://www.rechtspraak.nl/Organisatie-en-contact/Organisatie/Rechtbanken/Rechtbank-Den-Haag/Nieuws/Paginas/Life-sentences-for-downing-flight-MH17.aspx" target="_blank" rel="noopener">rechtspraak.nl</a></div>
+        </div>
+        <h4>IV. Научные статьи и монографии</h4>
+        <div class="cards">
+          <div class="card"><span class="num">НАУ-018</span>Paul C., Matthews M. The Russian "Firehose of Falsehood" Propaganda Model. RAND, 2016/2019. <a href="https://www.rand.org/pubs/perspectives/PE198.html" target="_blank" rel="noopener">rand.org</a></div>
+          <div class="card"><span class="num">НАУ-019</span>Теллин К.О. Потерянное поражение // Россия в глобальной политике. 2025. Т. 23. № 3. С. 127–137. DOI: 10.31278/1810-6439-2025-23-3-127-137</div>
+          <div class="card"><span class="num">НАУ-020</span>Косов А.П. Российская историография о роли США в развязывании «холодной войны» // БЖМПиМО. 2004. № 3. С. 44–61.</div>
+          <div class="card"><span class="num">НАУ-021</span>Куприянов А.В. Холодная война как особый тип конфликта // Россия в глобальной политике. 2021. Т. 19. № 4. С. 35–49. DOI: 10.31278/1810-6439-2021-19-4-35-49</div>
+          <div class="card"><span class="num">НАУ-022</span>Холодная война: В 2 т. / под ред. В.А. Золотарева. М.: ИНЭС, РУБИН, 2014.</div>
+          <div class="card"><span class="num">НАУ-023</span>Новая модель отношений между Китаем, США и Россией // Анализ ЦИПК-Центра. 2025. № 1 (19). С. 5–22.</div>
+          <div class="card"><span class="num">НАУ-024</span>Щедрин В.А. Историческая память о холодной войне и новая холодная война // Клио. 2025. № 5 (221). С. 234–239.</div>
+        </div>
+        <h4>V. Официальные заявления и публикации</h4>
+        <div class="cards">
+          <div class="card"><span class="num">ЗАЯ-025</span>«Только медленное воздействие может отвратить от коммунизма…»: работа ЦРУ с советской молодёжью (1947–1957) // Военно-исторический журнал. <a href="https://history.milportal.ru" target="_blank" rel="noopener">history.milportal.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-026</span>Комментарий МИД РФ по Йемену, 17.06.2020. <a href="https://mid.ru/ru/foreign_policy/news/1521403/" target="_blank" rel="noopener">mid.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-027</span>Большая пресс-конференция В.В. Путина, 16.12.2016. <a href="http://kremlin.ru/events/president/news/53573" target="_blank" rel="noopener">kremlin.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-028</span>Комментарий М.В. Захаровой, 16.02.2018. <a href="https://mid.ru/ru/foreign_policy/news/1681038/" target="_blank" rel="noopener">mid.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-029</span>Интервью В.В. Путина Financial Times, 20.06.2019. <a href="http://kremlin.ru/events/president/news/60759" target="_blank" rel="noopener">kremlin.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-030</span>Брифинг М.В. Захаровой о ЧВК в Африке, 29.07.2022. <a href="https://mid.ru/ru/press_service/video/1823064/" target="_blank" rel="noopener">mid.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-031</span>Комментарий МИД РФ о санкциях, 28.02.2022. <a href="https://mid.ru/ru/foreign_policy/news/1803883/" target="_blank" rel="noopener">mid.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-032</span>Комментарий МИД РФ по приговору MH17, 17.11.2022. <a href="https://mid.ru/ru/foreign_policy/news/1839275/" target="_blank" rel="noopener">mid.ru</a></div>
+          <div class="card"><span class="num">ЗАЯ-033</span>Ответ М.В. Захаровой по решению Совета ИКАО, 27.11.2025. <a href="https://mid.ru/ru/foreign_policy/news/1963090/" target="_blank" rel="noopener">mid.ru</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div><h4>Выходные данные</h4>Сопроводительный цифровой продукт к исследованию «От "Железного занавеса" к войне нарративов: эволюция феномена "холодной войны" в масс-медиа и восприятии подростков».</div>
+      <div><h4>Редакция</h4>Автор: Мясаедов Алексей, 10 класс, филиал НВМУ в г. Мурманске.<br>Руководители: Самойлова Ю.В., Рыбакова И.Н.</div>
+      <div><h4>Дисклеймер</h4>Продукт носит учебно-аналитический характер: позиции сторон воспроизводятся как объект дискурс-анализа; стилизованные тексты квиза не являются реальными публикациями.</div>
+    </div>
+    <div class="rule">© 2026 · Российская научно-социальная программа для молодёжи и школьников «Шаг в будущее» · Федерально-окружное соревнование, г. Мурманск · Тираж: цифровая публикация</div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Сводка сюжета">
+  <div class="d-head">
+    <button class="d-close" id="dClose" aria-label="Закрыть">✕</button>
+    <span class="d-chip" id="dChip">СЮЖЕТ</span>
+    <h3 id="dTitle"></h3>
+    <div class="sub" id="dSub"></div>
+  </div>
+  <div class="dtabs">
+    <button class="dtab dtab-p" id="tabPast">Занавес<span class="yr">1945–1991 · сводка из архива</span></button>
+    <button class="dtab dtab-n" id="tabPres">Нарративы<span class="yr">2000–2026 · прямой эфир</span></button>
+  </div>
+  <div class="d-body" id="dBody"></div>
+</aside>
+
+<!-- ===== СЛУЖЕБНЫЕ ДАННЫЕ (всё содержимое — здесь, в HTML) ===== -->
+<div id="tickData" hidden>
+  <span>1946 · Фултонская речь: «железный занавес» опускается над Европой</span>
+  <span>1950 · Корея: первый большой прокси-конфликт эпохи</span>
+  <span>1957 · Москва принимает VI всемирный фестиваль молодёжи</span>
+  <span>1959 · Рассекречен план SAC «Систематическое уничтожение»</span>
+  <span>1979 · Афганистан: помощь оппозиции одобрена ДО ввода советских войск</span>
+  <span>2016 · США: обвинения во «вмешательстве в выборы»</span>
+  <span>2018 · JIT: ЗРК «Бук», следствие и суд в Гааге</span>
+  <span>2022 · Экономика становится полем боя: санкции и продовольственное эмбарго</span>
+  <span>СПЕЦПРОЕКТ · Три кейса, две эпохи, один метод — сравнение</span>
+</div>
+
+<div id="caseInfo" hidden>
+  <span class="cinfo" data-id="A" data-letter="А" data-color="#f2b04b" data-chip="КЕЙС А"
+    data-title="Прокси-войны: «чужими руками»"
+    data-sub="Корея · Вьетнам · Афганистан ↔ ЧВК и гибридные конфликты в Африке"></span>
+  <span class="cinfo" data-id="B" data-letter="Б" data-color="#ff7b8a" data-chip="КЕЙС Б"
+    data-title="Информационные операции и «вмешательство»"
+    data-sub="Молодёжь и фестивали 1947–1957 ↔ выборы-2016 и катастрофа MH17"></span>
+  <span class="cinfo" data-id="C" data-letter="В" data-color="#3fd68f" data-chip="КЕЙС В"
+    data-title="Экономическое давление и санкции"
+    data-sub="Технологические эмбарго КОКОМ ↔ «умные» санкции OFAC/ЕС и ответные меры"></span>
+</div>
+
+<div id="markerData" hidden>
+  <span class="mk" data-id="korea" data-lon="127" data-lat="38.5" data-case="A" data-era="past" data-dy="-14" data-label="Корея, 1950–1953"></span>
+  <span class="mk" data-id="vietnam" data-lon="105.5" data-lat="20.5" data-case="A" data-era="past" data-dy="-14" data-label="Вьетнам, 1955–1975"></span>
+  <span class="mk" data-id="afghan" data-lon="66.5" data-lat="34" data-case="A" data-era="past" data-dy="-14" data-label="Афганистан, 1979–1989"></span>
+  <span class="mk" data-id="sahel" data-lon="2" data-lat="14" data-case="A" data-era="present" data-dy="24" data-label="Сахель и ЦАР — ЧВК сегодня"></span>
+  <span class="mk" data-id="moscow57" data-lon="37.6" data-lat="56" data-case="B" data-era="past" data-dy="-14" data-label="Москва, фестиваль 1957"></span>
+  <span class="mk" data-id="dc" data-lon="-77" data-lat="38.9" data-case="B" data-era="present" data-dy="24" data-label="США, выборы-2016"></span>
+  <span class="mk" data-id="mh17" data-lon="8" data-lat="54" data-case="B" data-era="present" data-dy="-14" data-label="MH17: JIT и суд (Гаага)"></span>
+  <span class="mk" data-id="cocom" data-lon="-6" data-lat="45" data-case="C" data-era="past" data-dy="24" data-label="КОКОМ — эмбарго (Париж)"></span>
+  <span class="mk" data-id="brussels" data-lon="9" data-lat="50.5" data-case="C" data-era="present" data-dy="-14" data-label="Санкции ЕС/OFAC (Брюссель)"></span>
+</div>
+
+<div id="caseData" hidden>
+
+  <div class="cdata" data-case="A" data-era="past"
+    data-tag="Сводка из архива · эпоха железного занавеса · 1945–1991"
+    data-bridge="Что осталось, а что исчезло? Стратегия «воевать чужими руками» — осталась; монополия государства на картину мира — ушла.">
+    <p class="leadline">Прокси-войны в Корее, Вьетнаме и Афганистане — не случайные вспышки, а осознанная стратегия сверхдержав: бороться за влияние, избегая прямого ядерного столкновения (доктрина «сдерживания» США и «пролетарский интернационализм» СССР).</p>
+    <h4>Архивный след</h4>
+    <ul>
+      <li><b>«Пентагоновские бумаги»</b> (48 томов, ~7000 страниц): внутреннее планирование США во Вьетнаме — систематическое занижение рисков и сознательное углубление вовлечённости. Коллекция — Национальный архив США, зеркало на Archive.org.</li>
+      <li><b>Афганистан:</b> рассекреченные аналитические записки ЦРУ и Госдепа (1979–1989) на сайте nsarchive.gwu.edu — оценки хода войны, потерь СССР и эффективности помощи моджахедам.</li>
+      <li><b>Сводка решений координационного комитета Госдепа от 23.10.1979:</b> масштабная помощь афганской оппозиции — <i>до</i> ввода советских войск.</li>
+      <li><b>Интервью З. Бжезинского</b> об операции «Циклон»: замысел «заманить СССР в афганскую ловушку» и «дать СССР его Вьетнам».</li>
+      <li><b>Корея:</b> Wilson Center «Korean War, 1950–1953» содержит переводы советских документов; прямые сканы советских решений в открытом доступе не найдены — факт асимметрии рассекречивания.</li>
+    </ul>
+    <h4>Медиа-механика эпохи</h4>
+    <ul>
+      <li>Централизованные государственные СМИ с монополией: в СССР — ТАСС, «Правда», радио; в США — официальные брифинги и телевидение.</li>
+      <li>Железный занавес — физический и цензурный барьер; глушение радиочастот дополняет картину.</li>
+      <li>Информация <b>дефицитна</b> — гражданин получает одну «рамку» интерпретации.</li>
+    </ul>
+  </div>
+
+  <div class="cdata" data-case="A" data-era="present"
+    data-tag="Прямой эфир · эпоха войны нарративов · 2000–2026"
+    data-bridge="В XX веке спорили о фактах участия; сегодня спорят о легитимности интерпретаций и праве акторов на действия.">
+    <p class="leadline">Современные прокси-конфликты ведутся негосударственными акторами (коммерческими ЧВК), точечными санкциями и асимметричными ответами — а главным ресурсом становится интерпретация событий.</p>
+    <h4>Новые прокси-акторы</h4>
+    <ul>
+      <li><b>ЧВК в Африке (Мали, ЦАР):</b> санкции Минфина США (OFAC, 2024) — «экспортёр нестабильности»; санкции ЕС (2022) — за нарушения прав человека и дестабилизацию.</li>
+    </ul>
+    <h4>Столкновение позиций</h4>
+    <ul>
+      <li><b>Позиция РФ:</b> М.В. Захарова (29.07.2022) — деятельность ЧВК «коммерческая инициатива», не связанная с официальной политикой; В.В. Путин (FT, 20.06.2019) — работа на коммерческой основе.</li>
+      <li><b>Позиция Запада:</b> доклады СБ ООН и ведомственные отчёты; ЧВК — инструмент гибридного влияния в санкционных списках.</li>
+    </ul>
+    <h4>Медиа-механика эпохи</h4>
+    <ul>
+      <li>Фрагментированная среда: официальные СМИ конкурируют с Telegram-каналами и видеохостингами.</li>
+      <li>По каждому эпизоду — две взаимоисключающие нарративно-доказательные базы.</li>
+      <li>Информация <b>избыточна</b> — проверяемость подменяется виральностью.</li>
+    </ul>
+  </div>
+
+  <div class="cdata" data-case="B" data-era="past"
+    data-tag="Сводка из архива · эпоха железного занавеса · 1945–1991"
+    data-bridge="XX век: спор о том, ЧТО говорить аудитории за занавесом.">
+    <p class="leadline">Борьба за умы велась задолго до интернета: спецслужбы соревновались за молодёжь, а международные фестивали становились полем тайных операций.</p>
+    <h4>Архивный след</h4>
+    <ul>
+      <li>Документы ЦРУ о целенаправленной работе с советской молодёжью в 1947–1957 гг. («Только медленное воздействие может отвратить от коммунизма…» — публикация в «Военно-историческом журнале»).</li>
+      <li>Противодействие западных спецслужб фестивалям молодёжи и студентов: Прага 1947 → Будапешт 1949 → Берлин 1951 → Варшава 1955 → <b>Москва 1957</b> → Вена 1959.</li>
+      <li>VI Всемирный фестиваль в Москве — крупнейшая пропагандистская площадка эпохи, объект операций с обеих сторон.</li>
+    </ul>
+    <h4>Медиа-механика эпохи</h4>
+    <ul>
+      <li>«Радиоволны против заграждений»: «Голос Америки», Би-би-си, Радио «Свобода» — против глушения.</li>
+      <li>Идеологические фильтры с обеих сторон; медленный цикл: газета → неделя → книжка.</li>
+      <li>Цель операций — не дезориентация, а долгосрочная «обработка» поколения.</li>
+    </ul>
+  </div>
+
+  <div class="cdata" data-case="B" data-era="present"
+    data-tag="Прямой эфир · эпоха войны нарративов · 2000–2026"
+    data-bridge="XXI век: спор о том, КТО имеет право говорить и ЧЬИ доказательства легитимны.">
+    <p class="leadline">«Вмешательство» стало универсальным обвинением: кампания 2016 года в США и катастрофа MH17 породили параллельные вселенные доказательств.</p>
+    <h4>Западная доказательная база</h4>
+    <ul>
+      <li>Обвинительное заключение Р. Мюллера (2018) о действиях «интернет-троллей»; доклад Сената США (2020) о кампании влияния.</li>
+      <li>Заключение JIT (2018): ЗРК «Бук», прибывший из России; приговор суда Гааги (2022) — пожизненные сроки.</li>
+    </ul>
+    <h4>Позиция РФ</h4>
+    <ul>
+      <li>В.В. Путин (16.12.2016): «важно, кто это сделал» — обвинения без доказательств не имеют значения.</li>
+      <li>МИД РФ (16.02.2018): обвинения «необоснованные», часть «антироссийской истории» для оправдания внутренних проблем США.</li>
+      <li>МИД РФ (17.11.2022): приговор по MH17 «политически мотивированный», JIT не признаётся из-за отказа от российских данных; (27.11.2025) — нелегитимность решения Совета ИКАО.</li>
+    </ul>
+    <h4>Аналитическая рамка</h4>
+    <ul>
+      <li>Модель <b>«пожар лжи» (Firehose of Falsehood)</b> (Paul &amp; Matthews, RAND, 2016): высокий темп + многоканальность + неприверженность последовательности = дезориентация, а не убеждение.</li>
+      <li>Западная парадигма — обвинение акторов; российская — критика ангажированности институтов и защита суверенитета.</li>
+    </ul>
+  </div>
+
+  <div class="cdata" data-case="C" data-era="past"
+    data-tag="Сводка из архива · эпоха железного занавеса · 1945–1991"
+    data-bridge="XX век: эмбарго на технологии — при монополии на информацию о причинах.">
+    <p class="leadline">Экономика была оружием сдерживания: технологии — главный дефицит, эмбарго — главный инструмент.</p>
+    <h4>Архивный след</h4>
+    <ul>
+      <li><b>КОКОМ (CoCom, 1949–1994):</b> многостороннее технологическое эмбарго против СССР и СЭВ — контроль экспорта стратегических технологий.</li>
+      <li><b>План SAC «Систематическое уничтожение» (1959):</b> рассекреченный список целей массированных ядерных ударов по тысячам целей на территории СССР и Китая — экономическое сдерживание подкреплялось ядерным шантажом.</li>
+      <li>Зерновое эмбарго США (1980) после ввода советских войск в Афганистан.</li>
+    </ul>
+    <h4>Медиа-механика эпохи</h4>
+    <ul>
+      <li>Метафора «догнать и перегнать» ↔ «империя зла»: экономика описывается как арена выживания систем.</li>
+      <li>Нарратив «технологического разрыва» — мобилизующий миф обеих сторон.</li>
+    </ul>
+  </div>
+
+  <div class="cdata" data-case="C" data-era="present"
+    data-tag="Прямой эфир · эпоха войны нарративов · 2000–2026"
+    data-bridge="XXI век: санкции на всё — от микрочипов до еды — и зеркальные ответные эмбарго.">
+    <p class="leadline">«Умные санкции» превратили экономику в прямое поле боя: точечные удары по секторам и элитам вместо тотальной блокады.</p>
+    <h4>Западная доказательная база</h4>
+    <ul>
+      <li><b>Директива 2 Минфина США (OFAC, SSI):</b> запрет операций с долговыми и долевыми инструментами ключевых российских компаний и банков.</li>
+      <li><b>Регламент Совета ЕС № 833/2014:</b> технологические и финансовые ограничения; <b>Council Decision (CFSP) 2022/336</b>.</li>
+    </ul>
+    <h4>Позиция РФ и ответные меры</h4>
+    <ul>
+      <li><b>Указ Президента РФ № 560 от 06.08.2014:</b> продовольственное эмбарго как асимметричный ответ.</li>
+      <li>МИД РФ (28.02.2022): санкции «незаконные, политически мотивированные и наносящие ущерб всем сторонам».</li>
+    </ul>
+    <h4>Медиа-механика эпохи</h4>
+    <ul>
+      <li>Санкционные новости — «ежедневный передний край»: реестры OFAC и EUR-Lex читаются как военные сводки.</li>
+      <li>Ответные меры подаются как «защита суверенитета»; каждое решение получает две нарративные рамки.</li>
+    </ul>
+  </div>
+
+  <div class="mir-data" data-case="A" data-title="Сравнительная строка: что изменилось"
+    data-h1="1945–1991 · Занавес" data-h2="2000–2026 · Нарративы">
+    <span data-p="Прямые армии и военные блоки" data-n="ЧВК и негосударственные акторы"></span>
+    <span data-p="Монопольные государственные СМИ" data-n="Фрагментированные медиа и эхо-камеры"></span>
+    <span data-p="Доктрина сдерживания, масштабная помощь" data-n="Точечные санкции и асимметричные ответы"></span>
+  </div>
+  <div class="mir-data" data-case="B" data-title="Сравнительная строка: что изменилось"
+    data-h1="1945–1991 · Занавес" data-h2="2000–2026 · Нарративы">
+    <span data-p="Радиостанции против глушения" data-n="Боты, скриншоты, «пожар лжи»"></span>
+    <span data-p="Фестивали как арена борьбы за умы" data-n="Выборы и суды как арена обвинений"></span>
+    <span data-p="Идеология: коммунизм vs капитализм" data-n="Суверенитет vs «либеральный порядок»"></span>
+  </div>
+  <div class="mir-data" data-case="C" data-title="Сравнительная строка: что изменилось"
+    data-h1="1945–1991 · Занавес" data-h2="2000–2026 · Нарративы">
+    <span data-p="Технологическое эмбарго (КОКОМ)" data-n="Секторальные «умные» санкции (OFAC/ЕС)"></span>
+    <span data-p="Ядерный шантаж как фон" data-n="Финансовое и юридическое давление"></span>
+    <span data-p="Дефицит информации" data-n="Гиперпроизводство информации"></span>
+  </div>
+</div>
+
+<div id="quizData" hidden
+  data-check="Проверить" data-next="Следующий материал →" data-final="Итоги смены"
+  data-verdict="ВЕРДИКТ РЕДАКЦИИ: верно {n} из 3 · разбор — под каждым вопросом"
+  data-score="Смена: {s} из {m}"
+  data-band9="Квалификация: редактор медиарасследований"
+  data-band7="Квалификация: уверенный аналитик нарративов"
+  data-band4="Квалификация: внимательный читатель — загляните в архив редакции"
+  data-band0="Рекомендовано: начать с архива редакции (папки 01 и 05)">
+
+  <div class="qtpl" data-skin="sk-paper" data-src="Материал № 1 · учебная стилизация · советская газетная заметка, 1950-е" data-count="Материал 1 из 3">
+    <div class="q-head"><h3>«ПОДЖИГАТЕЛИ ВОЙНЫ ОКРУЖАЮТ МИР БАЗАМИ!»</h3></div>
+    <div class="q-body">
+      <p>«Империалистические круги, рвущиеся к мировому господству, опутали планету сетью военных баз. Мирный труд советских людей под угрозой!</p>
+      <p>Но народы не дадут себя обмануть: они сплотятся вокруг лагеря мира и дадут решительный отпор любым авантюристам!»</p>
+    </div>
+    <div class="q-qs">
+      <div class="q-q" data-c="1">
+        <div class="qq">1. Какая главная цель этого сообщения?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Информирование</span></button>
+          <button class="opt"><span class="k">Б</span><span>Эмоциональная мобилизация</span></button>
+          <button class="opt"><span class="k">В</span><span>Дезинформация</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Текст не столько сообщает факты, сколько побуждает: страх («под угрозой»), гордость, готовность к сплочению. Лозунговые восклицания и оценочные эпитеты — маркеры мобилизационной риторики. Даже если факт (сеть военных баз) частично верен, функция текста — не просвещение, а мобилизация.</div>
+      </div>
+      <div class="q-q" data-c="1">
+        <div class="qq">2. Какой пропагандистский приём здесь используется?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Эффект «эхо-камеры»</span></button>
+          <button class="opt"><span class="k">Б</span><span>Подмена понятий</span></button>
+          <button class="opt"><span class="k">В</span><span>«Пожар лжи» (Firehose of Falsehood)</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Сложные явления заменены эмоциональными ярлыками: «империалистические круги», «поджигатели войны», «лагерь мира». Анализ уступает место дихотомии «свои/чужие» — это подмена понятий. «Эхо-камеры» — феномен социальных сетей, а модель «пожара лжи» описана лишь в 2016 г. (Paul &amp; Matthews, RAND).</div>
+      </div>
+      <div class="q-q" data-c="1">
+        <div class="qq">3. Где искать первоисточник?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>В «Письмах читателей» этой же газеты</span></button>
+          <button class="opt"><span class="k">Б</span><span>В рассекреченных архивных документах и сводках обеих сторон</span></button>
+          <button class="opt"><span class="k">В</span><span>В радиопередачах противоположного блока</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Первичная база — архивы: документы Пентагона и ЦРУ (Национальный архив США, nsarchive.gwu.edu), переводы советских материалов Wilson Center. Сверяйте оценку с документами обеих сторон: при монополии государства на информацию сама газета — вторичный источник.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qtpl" data-skin="sk-tg" data-src="Материал № 2 · учебная стилизация · пост анонимного Telegram-канала" data-count="Материал 2 из 3">
+    <div class="q-head"><h3>⚡ СРОЧНО: Запад готовит «санкционный удар эпохи»</h3></div>
+    <div class="q-body">
+      <p>«Источники сообщают: готовятся беспрецедентные меры давления. Детали неизвестны, но инсайдеры говорят: всё уже решено за закрытыми дверями.</p>
+      <p>Реакция обязательно последует. Ставь 🔥 — покажем, что мы в курсе!»</p>
+    </div>
+    <div class="q-qs">
+      <div class="q-q" data-c="2">
+        <div class="qq">1. Какая главная цель этого сообщения?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Информирование</span></button>
+          <button class="opt"><span class="k">Б</span><span>Эмоциональная мобилизация</span></button>
+          <button class="opt"><span class="k">В</span><span>Дезинформация</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Ни одного проверяемого факта: «детали неизвестны», источники анонимны, событие не произошло. Утверждение о будущем «решении» без оснований вводит аудиторию в заблуждение относительно фактов — это дезинформация. Маркер: счётчик эмоций (🔥) вместо ссылки на документ.</div>
+      </div>
+      <div class="q-q" data-c="0">
+        <div class="qq">2. Какой пропагандистский приём здесь используется?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Эффект «эхо-камеры»</span></button>
+          <button class="opt"><span class="k">Б</span><span>Подмена понятий</span></button>
+          <button class="opt"><span class="k">В</span><span>«Пожар лжи» (Firehose of Falsehood)</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Пост рассчитан на аудиторию, уже согласную с автором, и живёт пересылками: один и тот же текст циркулирует в замкнутой среде, укрепляя веру без доказательств (К. Санстейн, «#Republic»). Внутри эхо-камеры вопрос «а есть ли первоисточник?» почти не возникает.</div>
+      </div>
+      <div class="q-q" data-c="1">
+        <div class="qq">3. Где искать первоисточник?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>В ссылках, которые приложит сам канал</span></button>
+          <button class="opt"><span class="k">Б</span><span>В официальных реестрах и первичных документах (EUR-Lex, OFAC, pravo.gov.ru)</span></button>
+          <button class="opt"><span class="k">В</span><span>В других Telegram-каналах, где пост уже обсуждают</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Санкции — публичные юридические акты: Регламент Совета ЕС 833/2014 — в EUR-Lex, списки Минфина США — на сайте OFAC, ответные меры РФ — Указ № 560 от 06.08.2014. Метод SIFT: Stop → Investigate → Find → Trace.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qtpl" data-skin="sk-news" data-src="Материал № 3 · учебная стилизация · пост западного медиа-агрегатора" data-count="Материал 3 из 3">
+    <div class="q-head"><h3>EXCLUSIVE: "Horrifying" evidence of secret cyberwar</h3></div>
+    <div class="q-body">
+      <p>«Sources across three agencies in six countries all confirmed within hours: a foreign state wages secret cyberwar against our democracy. Officials describe the evidence as "compelling".</p>
+      <p>The regime in Moscow denies everything — but would they admit it? #CyberWar #ForeignThreat»</p>
+    </div>
+    <div class="q-qs">
+      <div class="q-q" data-c="1">
+        <div class="qq">1. Какая главная цель этого сообщения?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Информирование</span></button>
+          <button class="opt"><span class="k">Б</span><span>Эмоциональная мобилизация</span></button>
+          <button class="opt"><span class="k">В</span><span>Дезинформация</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Новостная форма маскирует функцию установки: тревога («horrifying», «secret war»), образ врага, хэштеги-лозунги. Анонимная атрибуция («sources say») создаёт ощущение достоверности, но не является верификацией. Цель — закрепить установку, а не передать проверяемые данные.</div>
+      </div>
+      <div class="q-q" data-c="2">
+        <div class="qq">2. Какой пропагандистский приём здесь используется?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>Эффект «эхо-камеры»</span></button>
+          <button class="opt"><span class="k">Б</span><span>Подмена понятий</span></button>
+          <button class="opt"><span class="k">В</span><span>«Пожар лжи» (Firehose of Falsehood)</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Классические признаки «пожара лжи» (Paul &amp; Matthews, RAND, 2016): высокий темп («confirmed within hours»), множество каналов («three agencies in six countries»), неприверженность проверяемости, риторическая ловушка «отрицание = признание». Задача — не переубедить, а дезориентировать. Приём может использовать любая сторона.</div>
+      </div>
+      <div class="q-q" data-c="0">
+        <div class="qq">3. Где искать первоисточник?</div>
+        <div class="opts">
+          <button class="opt"><span class="k">А</span><span>В первичных отчётах и открытых данных (доклады, данные CERT, документы ООН)</span></button>
+          <button class="opt"><span class="k">Б</span><span>В цитате «officials told» — этого достаточно</span></button>
+          <button class="opt"><span class="k">В</span><span>В количестве репостов и цитирований</span></button>
+        </div>
+        <div class="why"><div class="wh">Экспертный разбор</div>Проверяемая база — публичные отчёты (например, доклад Сената США по кампаниям влияния 2016 г., документы S/2021/229 СБ ООН), технические данные центров кибербезопасности. Латеральное чтение: откройте несколько независимых источников и найдите данные, которые можно проверить самостоятельно.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qfinal-tpl" hidden>
+    <div class="cert">
+      <div class="cert-top">ХРОНОГРАФ КОНФРОНТАЦИИ · ФАКТЧЕК-ДЕСК</div>
+      <div class="big js-score"></div>
+      <div class="stamp">Проверено · вердикт редакции</div>
+      <div class="band js-band"></div>
+      <p>Умение определять цель сообщения, распознавать приём и возвращаться к первоисточнику — базовые навыки медиаграмотности в условиях гибридной конфронтации. Удостоверение действительно до первого непроверенного репоста.</p>
+      <button class="btn js-restart">Смена заново</button>
+      <a class="btn ghost" href="#kb-section">Архив редакции</a>
+    </div>
+  </div>
+</div>
+
+<noscript><p style="padding:16px;font-family:sans-serif">Для работы интерактивных модулей включите JavaScript.</p></noscript>
+
+<script>
+function each(list,fn){for(var i=0;i<list.length;i++){fn(list[i],i);}}
+function gid(id){return document.getElementById(id);}
+function qsa(sel,root){return (root||document).querySelectorAll(sel);}
+function safe(name,fn){
+  try{fn();}
+  catch(e){
+    var b=gid('errbar');
+    b.style.display='block';
+    b.textContent='Module error ['+name+']: '+e.message;
+  }
+}
+safe('encoding',function(){
+  var cs='';
+  try{cs=document.characterSet||'';}catch(e){cs='';}
+  if(cs.toLowerCase().indexOf('utf')!==0){
+    var b=gid('errbar');
+    b.style.display='block';
+    b.textContent='File is not UTF-8. Re-save in Notepad: File > Save As > Encoding: UTF-8';
+  }
+});
+safe('clock',function(){
+  function pad(n){return ('0'+n).slice(-2);}
+  function tick(){
+    var d=new Date();
+    gid('clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  }
+  tick();
+  setInterval(tick,1000);
+  window.onscroll=function(){
+    var h=document.documentElement;
+    var max=h.scrollHeight-h.clientHeight;
+    var p=max>0?h.scrollTop/max:0;
+    gid('progress').style.width=(p*100)+'%';
+  };
+  var one='';
+  each(gid('tickData').getElementsByTagName('span'),function(sp){
+    one+='<span>'+sp.innerHTML+'</span>';
+  });
+  gid('tickTrack').innerHTML='<div class="tick">'+one+'</div><div class="tick">'+one+'</div>';
+});
+var INFO={};
+safe('info',function(){
+  each(qsa('#caseInfo .cinfo'),function(sp){
+    var id=sp.getAttribute('data-id');
+    var o={};
+    o.L=sp.getAttribute('data-letter');
+    o.color=sp.getAttribute('data-color');
+    o.title=sp.getAttribute('data-title');
+    o.sub=sp.getAttribute('data-sub');
+    o.chip=sp.getAttribute('data-chip');
+    INFO[id]=o;
+  });
+});
+safe('map',function(){
+  var LAND=[
+  [[-166,68],[-158,71],[-140,70],[-128,71],[-120,73],[-105,73],[-95,74],
+  [-85,72],[-80,68],[-75,62],[-60,52],[-65,45],[-70,42],[-74,39],[-76,35],
+  [-80,31],[-81,26],[-84,30],[-90,29],[-96,28],[-97,23],[-95,17],[-88,15],
+  [-84,11],[-80,8],[-83,9],[-87,13],[-93,16],[-100,17],[-105,21],[-110,25],
+  [-115,30],[-120,34],[-124,40],[-124,47],[-128,51],[-132,55],[-137,58],
+  [-145,60],[-152,59],[-158,57],[-163,59],[-167,63]],
+  [[-52,60],[-44,60],[-38,65],[-25,70],[-20,76],[-25,80],[-35,83],
+  [-50,82],[-58,76],[-55,70]],
+  [[-79,8],[-72,11],[-64,10],[-56,5],[-50,0],[-42,-3],[-35,-8],[-38,-14],
+  [-40,-22],[-48,-27],[-55,-34],[-62,-40],[-66,-46],[-69,-52],[-73,-50],
+  [-72,-42],[-71,-33],[-70,-25],[-70,-18],[-76,-13],[-79,-6],[-80,0],[-78,6]],
+  [[-16,13],[-10,25],[-9,31],[-4,35],[8,37],[19,32],[30,31],[34,28],
+  [36,22],[39,15],[43,11],[48,11],[51,10],[45,2],[40,-5],[39,-12],[35,-20],
+  [32,-26],[27,-33],[20,-35],[16,-30],[13,-22],[12,-14],[9,-2],[8,4],
+  [2,5],[-6,4],[-12,8]],
+  [[-6,36],[-9,37],[-9,43],[-2,44],[-4,48],[0,49],[4,52],[8,55],[10,57],
+  [5,58],[5,62],[12,65],[18,69],[25,71],[30,70],[40,66],[44,67],[55,69],
+  [65,70],[75,73],[85,74],[95,76],[105,77],[115,74],[130,72],[140,73],
+  [150,70],[160,69],[170,67],[178,65],[178,62],[170,60],[162,58],[156,52],
+  [150,59],[143,54],[140,48],[135,44],[130,42],[128,38],[129,35],[126,34],
+  [124,38],[121,38],[118,38],[121,32],[122,28],[115,22],[110,20],[108,15],
+  [106,10],[103,9],[100,13],[98,10],[101,3],[103,1],[100,6],[98,14],
+  [94,16],[90,22],[86,20],[83,17],[80,13],[77,8],[73,15],[70,20],[68,23],
+  [66,25],[61,25],[57,26],[56,24],[59,22],[57,18],[52,16],[45,12],[43,15],
+  [41,20],[38,24],[34,28],[34,33],[36,36],[30,36],[27,37],[23,36],[20,40],
+  [16,39],[14,41],[12,44],[9,44],[6,43],[3,42],[0,39]],
+  [[-5,50],[1,51],[0,53],[-2,56],[-5,58],[-7,55]],
+  [[-10,52],[-6,52],[-6,55],[-10,54]],
+  [[-22,64],[-15,64],[-14,66],[-20,66]],
+  [[130,31],[132,34],[136,35],[140,36],[141,39],[142,43],[145,44],
+  [144,42],[141,38],[136,33],[131,30]],
+  [[95,5],[102,-3],[106,-6],[100,0]],
+  [[105,-6],[114,-7],[112,-8],[106,-7]],
+  [[109,1],[117,4],[119,0],[114,-3]],
+  [[120,18],[122,14],[125,10],[122,8],[120,13]],
+  [[131,-1],[140,-2],[147,-6],[140,-8],[133,-4]],
+  [[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-15],[153,-25],
+  [153,-32],[145,-38],[135,-35],[129,-32],[118,-35],[113,-26]],
+  [[173,-35],[176,-38],[174,-41],[168,-46],[166,-45],[172,-40]],
+  [[44,-16],[48,-13],[50,-16],[47,-25],[44,-22]],
+  [[-84,22],[-77,20],[-74,20],[-80,23]],
+  [[80,9],[82,7],[81,6],[79,7]]];
+  function FX(lon){return (lon+180)/360*1000;}
+  function FY(lat){return (90-lat)/180*500;}
+  function inPoly(pt,poly){
+    var x=pt[0],y=pt[1],inside=false;
+    for(var i=0,j=poly.length-1;i<poly.length;j=i++){
+      var xi=poly[i][0],yi=poly[i][1];
+      var xj=poly[j][0],yj=poly[j][1];
+      var hit=((yi>y)!==(yj>y));
+      if(hit&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)){inside=!inside;}
+    }
+    return inside;
+  }
+  function land(lon,lat){
+    if(lat<-63){return true;}
+    var pt=[lon,lat];
+    for(var k=0;k<LAND.length;k++){
+      if(inPoly(pt,LAND[k])){return true;}
+    }
+    return false;
+  }
+  var svg=gid('worldmap');
+  var NS='http://www.w3.org/2000/svg';
+  function el(n,a){
+    var e=document.createElementNS(NS,n);
+    for(var k in a){e.setAttribute(k,a[k]);}
+    return e;
+  }
+  var lonG,latG,px,py,plon,plat;
+  for(lonG=-180;lonG<=180;lonG+=30){
+    svg.appendChild(el('line',{x1:FX(lonG),y1:0,x2:FX(lonG),y2:500,stroke:'rgba(255,255,255,.05)'}));
+  }
+  for(latG=-60;latG<=90;latG+=30){
+    svg.appendChild(el('line',{x1:0,y1:FY(latG),x2:1000,y2:FY(latG),stroke:'rgba(255,255,255,.05)'}));
+  }
+  var dots=el('g',{fill:'rgba(120,150,195,.55)'});
+  for(px=4;px<1000;px+=9){
+    for(py=4;py<500;py+=9){
+      plon=px/1000*360-180;
+      plat=90-py/500*180;
+      if(land(plon,plat)){
+        dots.appendChild(el('circle',{cx:px,cy:py,r:2}));
+      }
+    }
+  }
+  svg.appendChild(dots);
+
+  var drawer=gid('drawer');
+  var overlay=gid('overlay');
+  var curCase='A';
+
+  function findBlock(cid,eraName){
+    var res=null;
+    each(qsa('#caseData .cdata'),function(b){
+      if(b.getAttribute('data-case')===cid&&b.getAttribute('data-era')===eraName){res=b;}
+    });
+    return res;
+  }
+  function findMirror(cid){
+    var res=null;
+    each(qsa('#caseData .mir-data'),function(b){
+      if(b.getAttribute('data-case')===cid){res=b;}
+    });
+    return res;
+  }
+  function mirrorHTML(m){
+    var html='<div class="mirror"><div class="mh">'+m.getAttribute('data-title')+'</div>';
+    html+='<div class="m-hd"><div>'+m.getAttribute('data-h1')+'</div>';
+    html+='<div></div><div>'+m.getAttribute('data-h2')+'</div></div>';
+    each(m.getElementsByTagName('span'),function(sp){
+      html+='<div class="m-row"><div class="m-cell pl">'+sp.getAttribute('data-p')+'</div>';
+      html+='<div class="m-arrow">&#8596;</div>';
+      html+='<div class="m-cell pr">'+sp.getAttribute('data-n')+'</div></div>';
+    });
+    return html+'</div>';
+  }
+  function renderEra(cid,eraName){
+    var block=findBlock(cid,eraName);
+    if(!block){return;}
+    var cls=(eraName==='past')?'era era-past':'era era-pres';
+    var html='<div class="'+cls+'">';
+    html+='<div class="era-top">'+block.getAttribute('data-tag')+'</div>';
+    html+='<div class="era-body">'+block.innerHTML;
+    html+='<div class="bridge">'+block.getAttribute('data-bridge')+'</div></div></div>';
+    var m=findMirror(cid);
+    if(m){html+=mirrorHTML(m);}
+    var body=gid('dBody');
+    body.innerHTML=html;
+    body.scrollTop=0;
+  }
+  function markTabs(eraName){
+    var bp=gid('tabPast'),bn=gid('tabPres');
+    bp.className=(eraName==='past')?'dtab dtab-p on-p':'dtab dtab-p';
+    bn.className=(eraName==='present')?'dtab dtab-n on-n':'dtab dtab-n';
+  }
+  function openCase(cid,eraName){
+    curCase=cid;
+    var c=INFO[cid];
+    var chip=gid('dChip');
+    chip.textContent=c.chip;
+    chip.style.background=c.color;
+    gid('dTitle').textContent=c.title;
+    gid('dSub').textContent=c.sub;
+    markTabs(eraName);
+    renderEra(cid,eraName);
+    drawer.className='drawer open';
+    overlay.className='overlay on';
+  }
+  function closeDrawer(){
+    drawer.className='drawer';
+    overlay.className='overlay';
+  }
+  gid('tabPast').onclick=function(){markTabs('past');renderEra(curCase,'past');};
+  gid('tabPres').onclick=function(){markTabs('present');renderEra(curCase,'present');};
+  gid('dClose').onclick=closeDrawer;
+  overlay.onclick=closeDrawer;
+  document.onkeydown=function(e){
+    var k=e.key||e.keyCode;
+    if(k==='Escape'||k==='Esc'||k===27){closeDrawer();}
+  };
+  each(qsa('#markerData .mk'),function(sp,i){
+    var cid=sp.getAttribute('data-case');
+    var c=INFO[cid];
+    var lon=parseFloat(sp.getAttribute('data-lon'));
+    var lat=parseFloat(sp.getAttribute('data-lat'));
+    var dy=parseFloat(sp.getAttribute('data-dy'));
+    var label=sp.getAttribute('data-label');
+    var eraName=sp.getAttribute('data-era');
+    var g=el('g',{'class':'m-dot'});
+    g.appendChild(el('circle',{'class':'pulse',cx:FX(lon),cy:FY(lat),r:13,fill:c.color,opacity:.35}));
+    g.appendChild(el('circle',{cx:FX(lon),cy:FY(lat),r:6.5,fill:c.color,stroke:'#0e1a2b','stroke-width':2}));
+    var num=el('text',{x:FX(lon),y:FY(lat)+3,'text-anchor':'middle',fill:'#0e1a2b','font-size':'7.5','font-weight':'700'});
+    num.textContent=c.L;
+    g.appendChild(num);
+    var t=el('text',{'class':'m-label',x:FX(lon),y:FY(lat)+dy,'text-anchor':'middle'});
+    t.textContent=label;
+    g.appendChild(t);
+    var tp=document.createElementNS(NS,'title');
+    tp.textContent=label;
+    g.appendChild(tp);
+    g.onclick=function(){openCase(cid,eraName);};
+    svg.appendChild(g);
+    var b=document.createElement('button');
+    b.className='story';
+    var hh=(2+i*3)%24;
+    if(hh<10){hh='0'+hh;}
+    var mm=(i*17)%60;
+    if(mm<10){mm='0'+mm;}
+    b.innerHTML='<span class="tm">'+hh+':'+mm+'</span>';
+    b.innerHTML+='<span class="tg" style="background:'+c.color+';color:#0e1a2b">'+c.chip+'</span>';
+    b.innerHTML+='<span class="hl">'+label+'</span>';
+    b.onclick=function(){openCase(cid,eraName);};
+    gid('tapeList').appendChild(b);
+  });
+});
+safe('quiz',function(){
+  var root=gid('quizData');
+  var tpls=qsa('.qtpl',root);
+  var finTpl=qsa('.qfinal-tpl',root)[0];
+  var qShell=gid('quizShell');
+  var idx=0,score=0,locked=false;
+  var sel=[],z;
+  for(z=0;z<tpls.length;z++){sel.push([-1,-1,-1]);}
+  function S(key,ph){
+    var v=root.getAttribute('data-'+key)||'';
+    if(ph){
+      for(var k in ph){v=v.split(k).join(ph[k]);}
+    }
+    return v;
+  }
+  function dotsHtml(){
+    var h='';
+    for(var d=0;d<tpls.length;d++){
+      var cls='q-dot';
+      if(d===idx){cls+=' cur';}
+      else if(d<idx){cls+=' done';}
+      h+='<span class="'+cls+'"></span>';
+    }
+    return h;
+  }
+  function allSel(){
+    for(var i=0;i<3;i++){
+      if(sel[idx][i]<0){return false;}
+    }
+    return true;
+  }
+  function showCard(){
+    if(idx>=tpls.length){showFinal();return;}
+    locked=false;
+    var t=tpls[idx];
+    var html='<div class="q-dots">'+dotsHtml();
+    html+='<span class="q-note">'+t.getAttribute('data-count')+'</span></div>';
+    html+='<div class="q-card '+t.getAttribute('data-skin')+'">';
+    html+='<div class="q-src">◉ '+t.getAttribute('data-src')+'</div>';
+    html+=t.innerHTML;
+    html+='<div class="verdict"></div>';
+    html+='<div class="q-foot"><button class="btn" id="qBtn" disabled>';
+    html+=S('check');
+    html+='</button><span class="q-score" id="qScoreTxt"></span></div></div>';
+    qShell.innerHTML=html;
+    var btn=gid('qBtn');
+    each(qsa('.q-q',qShell),function(qq,qi2){
+      each(qsa('.opt',qq),function(o,oi){
+        o.onclick=function(){
+          if(locked){return;}
+          sel[idx][qi2]=oi;
+          each(qsa('.opt',qq),function(o2,oi2){
+            o2.className=(oi2===oi)?'opt sel':'opt';
+          });
+          btn.disabled=!allSel();
+        };
+      });
+    });
+    btn.onclick=function(){
+      if(!locked){checkCard(btn);}
+      else{idx++;showCard();}
+    };
+  }
+  function checkCard(btn){
+    locked=true;
+    var ok=0;
+    each(qsa('.q-q',qShell),function(qq,qi2){
+      var correct=parseInt(qq.getAttribute('data-c'),10);
+      each(qsa('.opt',qq),function(o,oi){
+        var cl='opt dis';
+        if(oi===correct){cl+=' right';}
+        else if(sel[idx][qi2]===oi){cl+=' wrong';}
+        o.className=cl;
+      });
+      qq.querySelector('.why').className='why show';
+      if(sel[idx][qi2]===correct){ok++;}
+    });
+    score+=ok;
+    var v=qShell.querySelector('.verdict');
+    v.className='verdict show';
+    v.textContent=S('verdict',{'{n}':ok});
+    gid('qScoreTxt').textContent=S('score',{'{s}':score,'{m}':tpls.length*3});
+    btn.textContent=(idx<tpls.length-1)?S('next'):S('final');
+    btn.disabled=false;
+  }
+  function showFinal(){
+    var band;
+    if(score>=9){band=root.getAttribute('data-band9');}
+    else if(score>=7){band=root.getAttribute('data-band7');}
+    else if(score>=4){band=root.getAttribute('data-band4');}
+    else{band=root.getAttribute('data-band0');}
+    qShell.innerHTML='';
+    var node=finTpl.cloneNode(true);
+    node.removeAttribute('hidden');
+    qShell.appendChild(node);
+    var cert=qShell.querySelector('.cert');
+    cert.querySelector('.js-score').textContent=score+' / '+(tpls.length*3);
+    cert.querySelector('.js-band').textContent=band;
+    cert.querySelector('.js-restart').onclick=function(){
+      idx=0;score=0;
+      for(var i=0;i<tpls.length;i++){sel[i]=[-1,-1,-1];}
+      showCard();
+    };
+  }
+  showCard();
+});
+safe('archive',function(){
+  each(qsa('.fhead'),function(h){
+    h.onclick=function(){
+      var f=gid(h.getAttribute('data-f'));
+      if(f.className.indexOf('open')>-1){f.className='folder reveal vis';}
+      else{f.className='folder open reveal vis';}
+    };
+  });
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      each(es,function(e){
+        if(e.isIntersecting){
+          e.target.className=e.target.className+' vis';
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:.1});
+    each(qsa('.reveal'),function(x){io.observe(x);});
+  }else{
+    each(qsa('.reveal'),function(x){x.className=x.className+' vis';});
+  }
+});
+</script>
+</body>
+</html>
