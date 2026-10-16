@@ -31,30 +31,201 @@ a{color:var(--blue)}
 #errbar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:#7a0e1e;color:#fff;
   font-family:monospace;font-size:12px;padding:8px 14px}
 #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--red);z-index:200}
+/* сервисная строка */
 .ub{background:var(--navy);color:#cdd8e6;font-family:'PT Mono',monospace;font-size:12px}
 .ub .wrap{display:flex;justify-content:space-between;gap:12px;height:34px;align-items:center;flex-wrap:wrap}
 .ub b{color:#fff}
 .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff3b30;margin-right:6px;animation:blink 1.2s steps(2) infinite}
 @keyframes blink{50%{opacity:.15}}
+/* бегущая строка */
 .ticker{background:var(--red);color:#fff;overflow:hidden;border-bottom:3px double var(--red2)}
 .tick-track{display:inline-flex;white-space:nowrap;animation:tick 55s linear infinite}
 .ticker:hover .tick-track{animation-play-state:paused}
 .tick{padding:8px 0;font-family:'Oswald';font-size:14px;letter-spacing:.06em;text-transform:uppercase}
 .tick span{padding:0 22px;border-right:1px solid rgba(255,255,255,.4)}
 @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+/* мастхед */
 .masthead{border-bottom:4px double var(--ink)}
-.masthead .over{display:flex;justify-content:space-between;font-family:'PT Mono';font-size:11.5px;color:var(--mut);
+.masthead .over{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:'PT Mono';font-size:11.5px;color:var(--mut);
   padding:10px 0 6px;border-bottom:1px solid var(--line);letter-spacing:.06em;text-transform:uppercase}
 .masthead h1{font-size:clamp(34px,6.4vw,74px);text-align:center;padding:18px 0 4px;letter-spacing:.04em;font-weight:700}
 .masthead h1 .r{color:var(--red)}
 .masthead .sub{text-align:center;font-style:italic;color:var(--mut);padding-bottom:12px;font-size:15px}
-.issueline{display:flex;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+.issueline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   font-family:'PT Mono';font-size:11.5px;color:var(--mut);padding:6px 0;text-transform:uppercase;letter-spacing:.05em}
+/* ===== КАРУСЕЛЬ «КАДРЫ ДВУХ ЭПОХ» — чистый CSS, без JS ===== */
+.reels{background:var(--paper2);border-bottom:1px solid var(--line);padding:30px 0}
+.reels-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.reels-head .r1{background:var(--ink);color:var(--paper);font-family:'Oswald';font-size:12px;
+  letter-spacing:.14em;padding:4px 10px;text-transform:uppercase}
+.reels-head .r2{font-family:'PT Mono';font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.reels-cap{font-style:italic;color:#4a463c;font-size:14.5px;margin:2px 0 16px}
+.reels-grid{display:grid;grid-template-columns:1fr 58px 1fr;gap:14px;align-items:stretch}
+.vs-badge{align-self:center;justify-self:center;font-family:'Oswald';font-weight:700;font-size:19px;
+  letter-spacing:.06em;border:3px double var(--red);color:var(--red);padding:8px 10px;border-radius:6px;
+  transform:rotate(-6deg);background:#fff}
+.reel{margin:0;display:flex;flex-direction:column;gap:8px}
+.reel-cap{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;
+  font-family:'Oswald';font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.reel--a .rc{color:#7c2d24}
+.reel--b .rc{color:#0a3b4a}
+.reel-cap .yr{font-family:'PT Mono';font-size:11px;letter-spacing:.02em;color:var(--mut)}
+.reel-note{font-family:'PT Mono';font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;text-align:center}
+.kwrap{position:relative;display:flex;flex-direction:column;gap:8px}
+.krad{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.kwin{position:relative;height:300px;overflow:hidden;border:2px solid var(--ink);background:var(--navy)}
+.kslide{display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;gap:8px;padding:16px 48px 40px;overflow:hidden}
+#kra1:checked~.kwin .kslide:nth-of-type(1),#krb1:checked~.kwin .kslide:nth-of-type(1),
+#kra2:checked~.kwin .kslide:nth-of-type(2),#krb2:checked~.kwin .kslide:nth-of-type(2),
+#kra3:checked~.kwin .kslide:nth-of-type(3),#krb3:checked~.kwin .kslide:nth-of-type(3),
+#kra4:checked~.kwin .kslide:nth-of-type(4),#krb4:checked~.kwin .kslide:nth-of-type(4){display:flex}
+#kra1:checked~.knav .kdot[for="kra1"],#krb1:checked~.knav .kdot[for="krb1"],
+#kra2:checked~.knav .kdot[for="kra2"],#krb2:checked~.knav .kdot[for="krb2"],
+#kra3:checked~.knav .kdot[for="kra3"],#krb3:checked~.knav .kdot[for="krb3"],
+#kra4:checked~.knav .kdot[for="kra4"],#krb4:checked~.knav .kdot[for="krb4"]{background:var(--red);border-color:var(--red)}
+.knav{display:flex;gap:9px;justify-content:center;align-items:center}
+.kdot{width:12px;height:12px;border-radius:50%;background:#c9c0ab;border:1px solid var(--line2);cursor:pointer}
+.kdot:hover{background:var(--ink)}
+.kp,.kn{position:absolute;top:50%;transform:translateY(-50%);z-index:6;width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.9);color:var(--ink);border:1.5px solid rgba(22,21,18,.4);
+  display:flex;align-items:center;justify-content:center;font-family:'Oswald';font-size:18px;
+  cursor:pointer;user-select:none}
+.kp{left:10px}
+.kn{right:10px}
+.kp:hover,.kn:hover{background:var(--ink);color:#fff}
+.fr{position:absolute;top:16px;left:12px;font-family:'PT Mono';font-size:10px;letter-spacing:.14em;
+  opacity:.55;text-transform:uppercase;z-index:5}
+.scap{position:absolute;bottom:0;left:0;right:0;padding:6px 10px;font-family:'PT Mono';
+  font-size:10.5px;letter-spacing:.03em;text-transform:uppercase;z-index:5}
+/* кадры эпохи Занавеса */
+.s-curtain{background:repeating-linear-gradient(90deg,#33120e 0 16px,#4c1b15 16px 32px);color:#e7d9b8}
+.s-curtain::before{content:"";position:absolute;top:0;left:0;right:0;height:12px;
+  background:repeating-linear-gradient(90deg,#230c08 0 20px,#3a140f 20px 40px);
+  border-bottom:2px solid #1a0806}
+.s-curtain .l1{font-family:'Oswald';font-size:clamp(20px,3vw,32px);letter-spacing:.06em}
+.s-curtain .l2{font-family:'Oswald';font-size:clamp(28px,4.2vw,50px);color:#e2685c;
+  letter-spacing:.04em;margin-top:-6px}
+.s-curtain .l3{font-family:'PT Mono';font-size:11px;opacity:.8}
+.s-curtain .scap{color:#e7d9b8;background:rgba(0,0,0,.4)}
+.s-poster{background:repeating-linear-gradient(45deg,rgba(200,16,46,.16) 0 14px,transparent 14px 28px),#f0e7d1;
+  color:#26201a}
+.s-poster .star{font-size:22px;color:#a33b30}
+.s-poster .l1{font-family:'Oswald';font-size:clamp(18px,2.6vw,28px)}
+.s-poster .l2{font-family:'Oswald';font-size:clamp(24px,3.4vw,40px);color:#a33b30;margin-top:-6px}
+.s-poster .scap{color:#7c2d24;background:rgba(240,231,209,.92)}
+.s-shark{background:#fff;color:#26201a}
+.s-shark .sw{position:relative;font-size:54px;line-height:1;display:inline-block}
+.s-shark .ht{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:28px}
+.s-shark .t{font-family:'Oswald';font-size:16px;color:#7c2d24;letter-spacing:.08em}
+.s-shark .scap{color:#26201a;background:rgba(217,210,192,.92)}
+.s-stamp{background:#fffdf6;color:#26201a}
+.s-stamp .lines{width:70%;display:grid;gap:8px}
+.s-stamp .lines i{display:block;height:8px;background:#d8d2c4}
+.s-stamp .lines i.s{width:60%}
+.s-stamp .st{margin-top:8px;border:3px double #a33b30;color:#a33b30;font-family:'Oswald';
+  font-size:14px;letter-spacing:.14em;padding:6px 14px;transform:rotate(-6deg)}
+.s-stamp .scap{color:#26201a;background:rgba(217,210,192,.92)}
+/* кадры эпохи нарративов */
+.s-phone{background:#0f1622;color:#e6edf6}
+.s-phone .l1{font-family:'Oswald';font-size:18px;letter-spacing:.08em;color:#9fe8e4}
+.s-phone .ph{width:170px;max-width:90%;background:#17212b;border:2px solid #3a4a66;border-radius:14px;
+  padding:10px;display:grid;gap:6px}
+.s-phone .nt{font-family:'Inter';font-weight:600;font-size:10.5px;color:#6ab3f3;
+  background:#1e2a37;border:1px solid #2b3b4d;border-radius:8px;padding:5px 7px;text-align:left}
+.s-phone .scap{color:#9fb2c8;background:rgba(10,16,29,.72)}
+.s-drake{background:#fff;color:#161512;gap:0;padding:0 0 40px 0}
+.s-drake .row{flex:1;display:flex;align-items:center;gap:10px;width:100%;padding:0 44px;
+  font-family:'Inter';font-size:12.5px;text-align:left}
+.s-drake .row+.row{border-top:1px solid var(--line)}
+.s-drake .e{font-size:26px}
+.s-drake .no{background:#f7e9e6}
+.s-drake .yes{background:#eaf4ec}
+.s-drake .scap{color:#26201a;background:rgba(217,210,192,.92)}
+.s-tg{background:#17212b;color:#eef4fa}
+.s-tg .msg{background:#1e2a37;border:1px solid #2b3b4d;border-radius:10px 10px 10px 2px;
+  padding:10px 12px;font-family:'Inter';font-size:12px;width:85%}
+.s-tg .cnt{font-family:'PT Mono';font-size:11px;color:#6ab3f3;margin-top:6px}
+.s-tg .scap{color:#6ab3f3;background:rgba(10,16,29,.72)}
+.s-fire{background:radial-gradient(circle at 50% 72%,rgba(226,104,92,.45),transparent 62%),#1d0f0e;
+  color:#ffd166}
+.s-fire .fi{font-size:44px}
+.s-fire .t{font-family:'Oswald';font-size:20px;letter-spacing:.06em}
+.s-fire .f2{font-family:'PT Mono';font-size:11px;color:#f0b9a0}
+.s-fire .scap{color:#ffd166;background:rgba(0,0,0,.42)}
+@media(max-width:940px){.reels-grid{grid-template-columns:1fr}.vs-badge{transform:rotate(-4deg)}}
+@media(max-width:640px){.kwin{height:250px}}
+@media(max-width:520px){.kp,.kn{width:30px;height:30px;font-size:15px}.kslide{padding:14px 40px 38px}}
+/* ===== ФОТОЛЕНТА · ВИЗУАЛЬНЫЕ ЦИТАТЫ ===== */
+.photostrip{border-bottom:1px solid var(--line);background:var(--paper2);padding:34px 0 26px}
+.ps-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.ps-head .r1{background:var(--ink);color:var(--paper);font-family:'Oswald';font-size:12px;
+  letter-spacing:.14em;padding:4px 10px;text-transform:uppercase}
+.ps-head .r2{font-family:'PT Mono';font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.ps-cap{font-style:italic;color:#4a463c;font-size:14.5px;margin:2px 0 14px}
+.ps-scroll{display:flex;gap:14px;overflow-x:auto;padding:6px 4px 16px;scroll-snap-type:x proximity}
+.ps-scroll::-webkit-scrollbar{height:8px}
+.ps-scroll::-webkit-scrollbar-track{background:#e2dbc8}
+.ps-scroll::-webkit-scrollbar-thumb{background:var(--ink);border-radius:4px}
+.pcard{min-width:235px;max-width:235px;flex:0 0 auto;scroll-snap-align:center;
+  border:1.5px solid var(--ink);background:#fff;box-shadow:5px 5px 0 rgba(22,21,18,.12)}
+.pc-img{position:relative;height:190px;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:14px 12px;gap:6px}
+.pc-img .wm{position:absolute;bottom:5px;right:8px;font-family:'PT Mono';font-size:9px;
+  letter-spacing:.18em;opacity:.4;text-transform:uppercase}
+.pcard figcaption{font-family:'PT Mono';font-size:10.5px;color:var(--mut);padding:8px 10px;
+  border-top:1px dashed var(--line2);line-height:1.45;text-transform:uppercase}
+.ps-era{flex:0 0 auto;min-width:130px;display:flex;flex-direction:column;justify-content:center;
+  gap:6px;padding:14px;font-family:'Oswald';letter-spacing:.1em;text-transform:uppercase}
+.ps-era b{font-size:19px;line-height:1.15}
+.ps-era i{font-family:'PT Mono';font-style:normal;font-size:10px;opacity:.85;letter-spacing:.04em;text-transform:none}
+.ps-era.e-past{background:#2b241b;border:1.5px solid #2b241b;color:#e7d9b8}
+.ps-era.e-pres{background:var(--navy);border:1.5px solid var(--navy);color:#9fe8e4}
+.pc-poster{background:repeating-linear-gradient(45deg, rgba(200,16,46,.14) 0 14px, transparent 14px 28px),#f0e7d1;color:#26201a}
+.pc-poster .l1{font-family:'Oswald';font-size:26px;line-height:1.05;letter-spacing:.03em}
+.pc-poster .l2{font-family:'Oswald';font-size:26px;color:#a33b30;letter-spacing:.03em}
+.pc-poster .l3{font-family:'PT Mono';font-size:11px;color:#6f5a3c}
+.pc-poster .star{font-size:20px;color:#a33b30}
+.pc-shark{background:var(--paper);color:#26201a}
+.pc-shark .fish{font-size:52px}
+.pc-shark .t{font-family:'Oswald';font-size:15px;color:#7c2d24;letter-spacing:.06em}
+.pc-shark .hat{font-size:26px;margin-top:-46px;pointer-events:none}
+.pc-stamp{background:#fffdf6;color:#26201a}
+.pc-stamp .lines{width:80%;display:grid;gap:7px}
+.pc-stamp .lines i{display:block;height:7px;background:#d8d2c4}
+.pc-stamp .lines i.s{width:62%}
+.pc-stamp .st{margin-top:10px;border:3px double #a33b30;color:#a33b30;font-family:'Oswald';
+  font-size:13px;letter-spacing:.12em;padding:5px 12px;transform:rotate(-7deg);text-transform:uppercase}
+.pc-radio{background:#1d1a16;color:#e7d9b8}
+.pc-radio .noise{font-family:'PT Mono';font-size:30px;letter-spacing:.35em;color:#8c7f5f}
+.pc-radio .t{font-family:'Oswald';font-size:13px;color:#e7d9b8;letter-spacing:.08em}
+.pc-drake{background:#fff;color:#161512;gap:0;padding:0;justify-content:stretch}
+.pc-drake .row{flex:1;display:flex;align-items:center;gap:8px;width:100%;padding:0 12px;font-family:'Inter';font-size:11.5px;text-align:left}
+.pc-drake .row+.row{border-top:1px solid var(--line)}
+.pc-drake .row .e{font-size:24px}
+.pc-drake .row.no{background:#f7e9e6}
+.pc-drake .row.yes{background:#eaf4ec}
+.pc-btns{background:#fff;color:#161512}
+.pc-btns .face{font-size:40px}
+.pc-btns .bwrap{display:flex;gap:6px}
+.pc-btns .b{font-family:'Inter';font-size:10px;padding:6px 7px;border:1.5px solid #161512;border-radius:8px;background:#efe9db}
+.pc-tg{background:#17212b;color:#eef4fa}
+.pc-tg .msg{background:#1e2a37;border:1px solid #2b3b4d;border-radius:10px 10px 10px 2px;
+  padding:8px 10px;font-family:'Inter';font-size:11.5px;text-align:left;width:88%}
+.pc-tg .cnt{font-family:'PT Mono';font-size:10.5px;color:#6ab3f3;margin-top:4px}
+.pc-brk{background:#0f1622;color:#e6edf6}
+.pc-brk .br{background:var(--red);color:#fff;font-family:'Oswald';font-size:13px;letter-spacing:.14em;
+  padding:3px 12px;text-transform:uppercase}
+.pc-brk .t{font-family:'Inter';font-size:12px}
+.pc-brk .t i{color:#8fa0b4;font-family:'PT Mono';font-style:normal;font-size:10.5px;display:block;margin-top:6px}
+@media(max-width:640px){.pcard{min-width:200px;max-width:200px}.pc-img{height:170px}}
+/* рубрики */
 .rubrics{background:var(--navy);position:sticky;top:0;z-index:150}
 .rubrics .wrap{display:flex;gap:4px;flex-wrap:wrap}
 .rubrics a{color:#dfe7f1;text-decoration:none;font-family:'Oswald';font-size:14px;letter-spacing:.08em;
   text-transform:uppercase;padding:11px 16px;border-bottom:3px solid transparent}
 .rubrics a:hover{border-color:var(--red);color:#fff}
+/* лид */
 #lead{padding:38px 0 30px;border-bottom:1px solid var(--line)}
 .kick{display:inline-flex;align-items:center;gap:10px;font-family:'Oswald';font-size:13px;letter-spacing:.16em;
   color:var(--red);text-transform:uppercase}
@@ -75,6 +246,7 @@ a{color:var(--blue)}
   padding:0 26px;font-family:'PT Mono';color:#eaf1f8;font-size:clamp(20px,4vw,44px);letter-spacing:.1em}
 .photo .ph-mid{color:var(--red);font-family:'Oswald'}
 .caption{font-family:'PT Mono';font-size:11.5px;color:var(--mut);margin-bottom:22px;text-transform:uppercase;letter-spacing:.04em}
+/* секции */
 section.blk{padding:44px 0 50px;border-bottom:1px solid var(--line)}
 .rub{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .rub .r1{background:var(--ink);color:var(--paper);font-family:'Oswald';font-size:12px;letter-spacing:.14em;
@@ -83,6 +255,7 @@ section.blk{padding:44px 0 50px;border-bottom:1px solid var(--line)}
 section.blk>h2{font-size:clamp(24px,3.4vw,40px);margin-bottom:6px}
 section.blk>h2 .r{color:var(--red)}
 .intro{max-width:860px;color:#4a463c;font-size:15.5px;margin-bottom:24px}
+/* студия-карта */
 .studio{position:relative;background:var(--navy);border:1px solid var(--ink);border-radius:6px;overflow:hidden;
   box-shadow:0 14px 34px rgba(14,26,43,.35)}
 .studio .scan{position:absolute;inset:0;pointer-events:none;
@@ -98,6 +271,7 @@ section.blk>h2 .r{color:var(--red)}
 @keyframes pulse{0%{transform:scale(.5);opacity:.6}100%{transform:scale(1.9);opacity:0}}
 .legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 2px 4px;font-family:'Inter';font-size:13px;color:#4a463c}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px}
+/* лента сюжетов */
 .tape{margin-top:18px;border-top:2px solid var(--ink)}
 .tape-h{font-family:'Oswald';font-size:14px;letter-spacing:.14em;text-transform:uppercase;padding:10px 2px;border-bottom:1px solid var(--line)}
 .story{display:flex;align-items:baseline;gap:12px;width:100%;text-align:left;background:none;border:0;
@@ -106,8 +280,9 @@ section.blk>h2 .r{color:var(--red)}
 .story .tm{font-family:'PT Mono';font-size:12px;color:var(--mut);min-width:48px}
 .story .tg{font-family:'Oswald';font-size:11px;padding:3px 8px;border-radius:3px;letter-spacing:.08em;white-space:nowrap}
 .story .hl{flex:1}
-@media(max-width:640px){.story .tm{display:none}}
-.overlay{position:fixed;inset:0;background:rgba(10,12,16,.6);opacity:0;pointer-events:none;transition:.3s;z-index:180}
+@media(max-width:640px){.story .tm{display:none}.m-label{display:none}}
+/* плашка кейса */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,12,16,.6);opacity:0;pointer-events:none;transition:.3s;z-index:180}
 .overlay.on{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;height:100%;width:min(620px,100%);background:#fff;border-left:4px solid var(--red);
   transform:translateX(103%);transition:transform .32s cubic-bezier(.2,.9,.3,1);z-index:190;display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.25)}
@@ -154,6 +329,7 @@ section.blk>h2 .r{color:var(--red)}
   text-transform:uppercase;background:var(--paper2);border-bottom:1px solid var(--line)}
 .m-hd div{padding:6px 12px}
 @media(max-width:520px){.m-row,.m-hd{grid-template-columns:1fr}.m-arrow{display:none}.m-cell.pr{border-top:1px dashed #2c3d57}}
+/* фактчек-деск */
 .desk-note{border:1px solid var(--ink);background:#fff;border-radius:6px;padding:14px 16px;margin-bottom:20px;
   font-size:14.5px;display:flex;gap:14px;align-items:flex-start}
 .desk-note .ic{font-size:22px}
@@ -211,7 +387,7 @@ section.blk>h2 .r{color:var(--red)}
 .sk-news .q-head h3{font-family:'PT Serif',Georgia,serif;font-style:italic;text-transform:none;color:var(--ink)}
 .sk-news .q-q{background:#faf8f3}
 .cert{border:2px solid var(--ink);border-radius:6px;background:#fff;padding:34px 24px;text-align:center;position:relative;overflow:hidden}
-.cert::before{content:"";position:absolute;inset:8px;border:1px dashed var(--line2);pointer-events:none}
+.cert::before{content:"";position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed var(--line2);pointer-events:none}
 .cert .big{font-family:'Oswald';font-size:60px;color:var(--red);line-height:1}
 .cert-top{font-family:'PT Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--mut)}
 .band{display:inline-block;margin:12px 0 16px;padding:8px 18px;border:2px solid var(--ink);
@@ -219,6 +395,7 @@ section.blk>h2 .r{color:var(--red)}
 .stamp{display:inline-block;margin:6px 0 14px;padding:9px 20px;border:3px double var(--red);color:var(--red);
   font-family:'Oswald';letter-spacing:.16em;font-size:14px;text-transform:uppercase;transform:rotate(-5deg)}
 .cert p{max-width:560px;margin:0 auto 18px;color:#4a463c;font-size:14.5px}
+/* архив редакции */
 .folder{border:1.5px solid var(--ink);border-radius:6px;background:#fff;margin-bottom:14px;overflow:hidden}
 .fhead{width:100%;display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--paper2);
   border:0;cursor:pointer;font-family:'Oswald';font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
@@ -255,7 +432,6 @@ footer .rule{border-top:1px solid rgba(255,255,255,.18);margin-top:22px;padding-
   font-family:'PT Mono';font-size:11px;color:#8fa0b4;letter-spacing:.05em}
 .reveal{opacity:0;transform:translateY(16px);transition:.55s}
 .reveal.vis{opacity:1;transform:none}
-@media(max-width:640px){.m-label{display:none}}
 </style>
 </head>
 <body>
@@ -284,6 +460,177 @@ footer .rule{border-top:1px solid rgba(255,255,255,.18);margin-top:22px;padding-
     </div>
   </div>
 </div>
+
+<!-- КАРУСЕЛЬ «КАДРЫ ДВУХ ЭПОХ» — чистый CSS -->
+<section class="reels" aria-label="Кадры двух эпох">
+  <div class="wrap">
+    <div class="reels-head"><span class="r1">Кадры двух эпох</span><span class="r2">Стрелки и точки — листать · наведите курсор — пауза</span></div>
+    <p class="reels-cap">Слева — визуальный словарь эпохи Занавеса: занавес, плакат, шарж, штамп. Справа — словарь эпохи нарративов: уведомления, скриншоты, счётчики эмоций, «срочно». Все кадры — рисованные стилизации редакции.</p>
+    <div class="reels-grid">
+
+      <figure class="reel reel--a">
+        <figcaption class="reel-cap"><span class="rc">■ Эпоха занавеса</span><span class="yr">1945–1991 · 4 кадра</span></figcaption>
+        <div class="kwrap" id="krawrap">
+          <input class="krad" type="radio" name="kra" id="kra1" checked>
+          <input class="krad" type="radio" name="kra" id="kra2">
+          <input class="krad" type="radio" name="kra" id="kra3">
+          <input class="krad" type="radio" name="kra" id="kra4">
+          <div class="kwin">
+            <div class="kslide s-curtain">
+              <label class="kp" for="kra4">‹</label><label class="kn" for="kra2">›</label>
+              <span class="fr">Кадр 1/4</span>
+              <span class="l1">ЖЕЛЕЗНЫЙ</span><span class="l2">ЗАНАВЕС</span>
+              <span class="l3">информация — только на выдачу</span>
+              <span class="scap">Физический и цензурный барьер вместо ответов</span>
+            </div>
+            <div class="kslide s-poster">
+              <label class="kp" for="kra1">‹</label><label class="kn" for="kra3">›</label>
+              <span class="fr">Кадр 2/4</span>
+              <span class="star">★</span>
+              <span class="l1">ДОГОНАТЬ</span><span class="l2">И ПЕРЕГНАТЬ!</span>
+              <span class="scap">Лозунг как формат новости</span>
+            </div>
+            <div class="kslide s-shark">
+              <label class="kp" for="kra2">‹</label><label class="kn" for="kra4">›</label>
+              <span class="fr">Кадр 3/4</span>
+              <span class="sw"><span class="sh">🦈</span><span class="ht">🎩</span></span>
+              <span class="t">ИМПЕРИАЛИСТИЧЕСКАЯ АКУЛА</span>
+              <span class="scap">У врага всегда были клыки и цилиндр</span>
+            </div>
+            <div class="kslide s-stamp">
+              <label class="kp" for="kra3">‹</label><label class="kn" for="kra1">›</label>
+              <span class="fr">Кадр 4/4</span>
+              <span class="lines"><i></i><i></i><i class="s"></i><i></i></span>
+              <span class="st">Цензура: одобрено</span>
+              <span class="scap">Одобрено до того, как дошло до вас</span>
+            </div>
+          </div>
+          <div class="knav">
+            <label class="kdot" for="kra1"></label>
+            <label class="kdot" for="kra2"></label>
+            <label class="kdot" for="kra3"></label>
+            <label class="kdot" for="kra4"></label>
+          </div>
+        </div>
+        <div class="reel-note">Занавес · плакат · шарж · штамп цензуры</div>
+      </figure>
+
+      <div class="vs-badge">VS</div>
+
+      <figure class="reel reel--b">
+        <figcaption class="reel-cap"><span class="rc">■ Эпоха нарративов</span><span class="yr">2000–2026 · 4 кадра</span></figcaption>
+        <div class="kwrap" id="krbwrap">
+          <input class="krad" type="radio" name="krb" id="krb1" checked>
+          <input class="krad" type="radio" name="krb" id="krb2">
+          <input class="krad" type="radio" name="krb" id="krb3">
+          <input class="krad" type="radio" name="krb" id="krb4">
+          <div class="kwin">
+            <div class="kslide s-phone">
+              <label class="kp" for="krb4">‹</label><label class="kn" for="krb2">›</label>
+              <span class="fr">Кадр 1/4</span>
+              <span class="l1">ЭХО-КАМЕРА</span>
+              <span class="ph">
+                <span class="nt">🔔 Уведомления: 99+</span>
+                <span class="nt">⚡️ СРОЧНО: всё уже решено</span>
+                <span class="nt">🔥🔥🔥 ставь, если в курсе</span>
+              </span>
+              <span class="scap">Информации — избыток, проверяемости — ноль</span>
+            </div>
+            <div class="kslide s-drake">
+              <label class="kp" for="krb1">‹</label><label class="kn" for="krb3">›</label>
+              <span class="fr">Кадр 2/4</span>
+              <span class="row no"><span class="e">🙅</span><span>Открыть первоисточник (40 страниц)</span></span>
+              <span class="row yes"><span class="e">😎</span><span>Поверить скриншоту из TG</span></span>
+              <span class="scap">Исследование не прошло аппрув у ленты</span>
+            </div>
+            <div class="kslide s-tg">
+              <label class="kp" for="krb2">‹</label><label class="kn" for="krb4">›</label>
+              <span class="fr">Кадр 3/4</span>
+              <span class="msg">⚡️ СРОЧНО: всё уже решено за закрытыми дверями</span>
+              <span class="cnt">🔥 12,4K · 📤 9,1K · 🔗 0</span>
+              <span class="scap">Эмоций — на миллион, ссылок — ноль</span>
+            </div>
+            <div class="kslide s-fire">
+              <label class="kp" for="krb3">‹</label><label class="kn" for="krb1">›</label>
+              <span class="fr">Кадр 4/4</span>
+              <span class="fi">🔥</span>
+              <span class="t">ПОЖАР ЛЖИ</span>
+              <span class="f2">темп × каналы × несовместимость версий</span>
+              <span class="scap">Firehose of Falsehood: дезориентация вместо убеждения</span>
+            </div>
+          </div>
+          <div class="knav">
+            <label class="kdot" for="krb1"></label>
+            <label class="kdot" for="krb2"></label>
+            <label class="kdot" for="krb3"></label>
+            <label class="kdot" for="krb4"></label>
+          </div>
+        </div>
+        <div class="reel-note">Уведомления · скриншот · счётчик · «срочно»</div>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- ФОТОЛЕНТА · ВИЗУАЛЬНЫЕ ЦИТАТЫ (под каруселью) -->
+<section class="photostrip">
+  <div class="wrap">
+    <div class="ps-head"><span class="r1">Фотолента</span><span class="r2">Визуальные цитаты двух эпох · графика редакции</span></div>
+    <p class="ps-cap">Прокрутите ленту ← →: как выглядел визуальный язык пропаганды до интернета и после него. Все карточки — рисованные стилизации редакции, без реальных лиц и брендов.</p>
+    <div class="ps-scroll">
+
+      <div class="ps-era e-past"><span>Эпоха</span><b>Занавеса</b><b>1945–1991</b><i>плакаты · шаржи · глушение</i></div>
+
+      <figure class="pcard">
+        <div class="pc-img pc-poster"><span class="star">★</span><span class="l1">ДОГОНАТЬ</span><span class="l2">И ПЕРЕГНАТЬ!</span><span class="l3">к 1980 году</span><span class="wm">Редакция</span></div>
+        <figcaption>Плакат № 1. Темп — наше всё. Сроки потом подправит история</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-shark"><span class="fish">🦈</span><span class="hat">🎩</span><span class="t">ИМПЕРИАЛИСТИЧЕСКАЯ АКУЛА</span><span class="wm">Редакция</span></div>
+        <figcaption>Шарж 1952 года. У врага всегда были клыки и цилиндр</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-stamp"><span class="lines"><i></i><i></i><i class="s"></i><i></i><i class="s"></i></span><span class="st">Цензура: одобрено</span><span class="wm">Редакция</span></div>
+        <figcaption>Газета: прочитано редакцией. Одобрено до того, как дошло до вас</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-radio"><span class="noise">Ш-Ш-Ш-Ш</span><span class="t">«Чужие голоса» заглушены бдительностью</span><span class="wm">Редакция</span></div>
+        <figcaption>Радиоточка. Помеха вместо ответа — звуковой символ эпохи</figcaption>
+      </figure>
+
+      <div class="ps-era e-pres"><span>Эпоха</span><b>Нарративов</b><b>2000–2026</b><i>скриншоты · стикеры · срочно🔥</i></div>
+
+      <figure class="pcard">
+        <div class="pc-img pc-drake">
+          <span class="row no"><span class="e">🙅</span><span>Открыть первоисточник (40 страниц)</span></span>
+          <span class="row yes"><span class="e">😎</span><span>Поверить скриншоту в TG</span></span>
+          <span class="wm">Редакция</span>
+        </div>
+        <figcaption>Классика формата: исследование не прошло аппрув у ленты</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-btns"><span class="face">😅</span><span class="bwrap"><span class="b">Признать данные</span><span class="b">Назвать инсинуацией</span></span><span class="wm">Редакция</span></div>
+        <figcaption>Дилемма спикера: обе кнопки нажаты одновременно</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-tg"><span class="msg">⚡️ СРОЧНО: всё уже решено за закрытыми дверями</span><span class="cnt">🔥 12,4K · 📤 9,1K · 🔗 0</span><span class="wm">Редакция</span></div>
+        <figcaption>Эмоций — на миллион. Ссылок на первоисточник — ноль</figcaption>
+      </figure>
+
+      <figure class="pcard">
+        <div class="pc-img pc-brk"><span class="br">Breaking</span><span class="t">«Источники сообщают…»<i>— какие источники? — ну… источники</i></span><span class="wm">Редакция</span></div>
+        <figcaption>Атрибуция по понятиям: надёжно, потому что уже повторили</figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
 
 <nav class="rubrics">
   <div class="wrap">
@@ -498,7 +845,7 @@ footer .rule{border-top:1px solid rgba(255,255,255,.18);margin-top:22px;padding-
     <div class="fgrid">
       <div><h4>Выходные данные</h4>Сопроводительный цифровой продукт к исследованию «От "Железного занавеса" к войне нарративов: эволюция феномена "холодной войны" в масс-медиа и восприятии подростков».</div>
       <div><h4>Редакция</h4>Автор: Мясаедов Алексей, 10 класс, филиал НВМУ в г. Мурманске.<br>Руководители: Самойлова Ю.В., Рыбакова И.Н.</div>
-      <div><h4>Дисклеймер</h4>Продукт носит учебно-аналитический характер: позиции сторон воспроизводятся как объект дискурс-анализа; стилизованные тексты квиза не являются реальными публикациями.</div>
+      <div><h4>Дисклеймер</h4>Продукт носит учебно-аналитический характер: позиции сторон воспроизводятся как объект дискурс-анализа; тексты квиза и все изображения — рисованные учебные стилизации, не являющиеся реальными публикациями.</div>
     </div>
     <div class="rule">© 2026 · Российская научно-социальная программа для молодёжи и школьников «Шаг в будущее» · Федерально-окружное соревнование, г. Мурманск · Тираж: цифровая публикация</div>
   </div>
@@ -519,7 +866,6 @@ footer .rule{border-top:1px solid rgba(255,255,255,.18);margin-top:22px;padding-
   <div class="d-body" id="dBody"></div>
 </aside>
 
-<!-- ===== СЛУЖЕБНЫЕ ДАННЫЕ (всё содержимое — здесь, в HTML) ===== -->
 <div id="tickData" hidden>
   <span>1946 · Фултонская речь: «железный занавес» опускается над Европой</span>
   <span>1950 · Корея: первый большой прокси-конфликт эпохи</span>
@@ -885,6 +1231,32 @@ safe('info',function(){
     o.chip=sp.getAttribute('data-chip');
     INFO[id]=o;
   });
+});
+/* автопрокрутка карусели: кликает по радиокнопкам; ручное управление работает и без этого модуля */
+safe('autoplay',function(){
+  var reduce=null;
+  if(window.matchMedia){reduce=window.matchMedia('(prefers-reduced-motion: reduce)');}
+  if(reduce&&reduce.matches){return;}
+  function auto(prefix,n,delay){
+    var wrap=gid(prefix+'wrap');
+    if(!wrap){return;}
+    var pause=false;
+    wrap.onmouseenter=function(){pause=true;};
+    wrap.onmouseleave=function(){pause=false;};
+    setInterval(function(){
+      if(pause||document.hidden){return;}
+      var cur=0,k,rb;
+      for(k=1;k<=n;k++){
+        rb=gid(prefix+k);
+        if(rb&&rb.checked){cur=k;}
+      }
+      var nx=(cur%n)+1;
+      var r=gid(prefix+nx);
+      if(r){r.checked=true;}
+    },delay);
+  }
+  auto('kra',4,5000);
+  setTimeout(function(){auto('krb',4,5000);},2500);
 });
 safe('map',function(){
   var LAND=[
